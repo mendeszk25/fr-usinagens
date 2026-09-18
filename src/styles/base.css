@@ -580,3 +580,33 @@ footer > small a:hover,
 .footer-credit-link:hover {
   color: var(--text);
 }
+
+/* Developer credit kept inside the primary footer column so it stays visible
+   even when the secondary footer columns are outside a cropped viewport. */
+.developer-credit {
+  display: grid;
+  gap: 4px;
+  margin-top: -8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(195, 200, 203, 0.14);
+  max-width: 360px;
+}
+.developer-credit span {
+  color: #68747b;
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  line-height: 1.5;
+}
+.developer-credit strong {
+  color: #c7cdd0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .5px;
+}
+.developer-credit a {
+  width: fit-content;
+  color: #f1f2f2;
+  font-size: 12px;
+  letter-spacing: .3px;
+}
+.developer-credit a:hover { color: var(--accent); }
