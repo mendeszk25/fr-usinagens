@@ -558,3 +558,25 @@ body {
     margin: 0;
   }
 }
+
+
+.footer-credit-label {
+  margin-top: 10px;
+  color: #6f7b82;
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  line-height: 1.6;
+}
+
+.footer-credit-link {
+  color: var(--secondary);
+}
+
+footer > small a {
+  color: #93a0a7;
+}
+
+footer > small a:hover,
+.footer-credit-link:hover {
+  color: var(--text);
+}
