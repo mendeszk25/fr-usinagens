@@ -117,7 +117,7 @@ test("constrained hardware keeps the 3D story at a lower quality tier and quote 
   });
   await page.goto("/");
   await expect(page.locator("#canvas-host canvas")).toBeVisible();
-  await expect(page.locator(".experience-stage")).toHaveAttribute("data-quality-tier", "low-power");
+  await expect(page.locator(".experience-stage")).toHaveAttribute("data-quality-tier", "mobile-low");
   await expect(page.locator(".pin-spacer")).toHaveCount(1);
   await page.locator("#name").fill("Teste de projeto");
   await page.locator("#company").fill("Oficina teste");
@@ -185,6 +185,15 @@ test("Android/iOS viewport matrix keeps the same 3D sequence, safe layout and no
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".hero-description-mobile")).toBeVisible();
+  await expect(page.locator(".hero-description-desktop")).toBeHidden();
+  const primaryCta = await page.locator(".hero-actions .button-primary").boundingBox();
+  expect(primaryCta).not.toBeNull();
+  expect(primaryCta.height).toBeGreaterThanOrEqual(44);
+  expect(primaryCta.width).toBeGreaterThan(280);
+  const secondaryCta = await page.locator(".hero-actions .hero-link").boundingBox();
+  expect(secondaryCta).not.toBeNull();
+  expect(secondaryCta.height).toBeGreaterThanOrEqual(40);
   await scrollToProgress(page, 0.58);
   const before = Number(await page.locator(".experience-stage").getAttribute("data-progress"));
   await page.setViewportSize({ width: 844, height: 390 });

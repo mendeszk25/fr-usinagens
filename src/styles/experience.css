@@ -1394,3 +1394,431 @@
     margin-bottom: 0;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Mobile hero quality pass — iOS + Android
+   Preserve the desktop art direction while giving the 3D model more visual
+   authority, clearer commercial actions and a cleaner technical control bar.
+   -------------------------------------------------------------------------- */
+.hero-description-mobile {
+  display: none;
+}
+
+@media (max-width: 759px) and (orientation: portrait) {
+  .experience-stage {
+    height: 100svh;
+    min-height: 0;
+    background:
+      linear-gradient(180deg, rgba(8, 10, 11, 0.76) 0%, rgba(8, 10, 11, 0.86) 17%, rgba(8, 10, 11, 0.22) 48%, rgba(8, 10, 11, 0.76) 100%),
+      radial-gradient(circle at 52% 57%, rgba(105, 116, 117, 0.16) 0%, rgba(26, 32, 34, 0.07) 31%, rgba(8, 10, 11, 0) 57%),
+      url("/images/hero-industrial-background.webp");
+    background-size: cover, auto, cover;
+    background-position: center, 52% 57%, 54% center;
+  }
+
+  .experience-stage:before {
+    background:
+      linear-gradient(180deg, rgba(8, 10, 11, 0.08) 0%, rgba(8, 10, 11, 0.03) 20%, rgba(8, 10, 11, 0.08) 54%, rgba(8, 10, 11, 0.7) 100%),
+      radial-gradient(circle at 51% 57%, rgba(222, 226, 223, 0.045) 0%, rgba(8, 10, 11, 0) 34%);
+  }
+
+  .hero-copy {
+    top: calc(var(--safe-top) + 88px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    width: auto;
+    padding: 0;
+  }
+
+  .hero-copy > .eyebrow {
+    margin-bottom: clamp(9px, 1.7svh, 13px);
+    font-size: 9px;
+    letter-spacing: 1.65px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(41px, 12.4vw, 52px);
+    line-height: 0.94;
+    letter-spacing: -0.35px;
+    max-width: 6.3ch;
+  }
+
+  .hero-description-desktop {
+    display: none;
+  }
+
+  .hero-description-mobile {
+    display: inline;
+  }
+
+  .hero-description {
+    max-width: min(78vw, 310px);
+    margin-top: clamp(10px, 1.9svh, 14px);
+    font-size: clamp(13px, 3.45vw, 14px);
+    line-height: 1.48;
+    color: #b1b9bd;
+  }
+
+  .hero-actions {
+    width: min(100%, 350px);
+    margin-top: clamp(13px, 2.2svh, 17px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .hero-copy .button {
+    width: 100%;
+    min-height: 50px;
+    padding: 14px 17px;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 1.05px;
+  }
+
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    min-height: 44px;
+    padding: 11px 0 8px;
+    border-bottom-color: rgba(150, 160, 166, 0.52);
+    font-size: 9px;
+    letter-spacing: 1.05px;
+  }
+
+  .hero-caption {
+    display: none;
+  }
+
+  /* The canvas gets a little more room and the CameraRig supplies the actual
+     10–15% perceived size increase. Keeping it a DOM crop avoids CSS scaling
+     the WebGL bitmap and preserves sharpness. */
+  .canvas-host {
+    top: 29%;
+    bottom: auto;
+    height: 60%;
+  }
+
+  .model-caption {
+    bottom: calc(var(--safe-bottom) + 120px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: auto;
+    max-width: min(62vw, 240px);
+    font-size: 7px;
+    letter-spacing: 1px;
+    opacity: 0.72;
+  }
+
+  .model-caption small {
+    margin-top: 4px;
+    font-size: 7px;
+    letter-spacing: 0.85px;
+  }
+
+  .experience-stage.has-started .model-caption {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .narrative {
+    top: calc(var(--safe-top) + 82px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    bottom: auto;
+    text-align: left;
+  }
+
+  .narrative h2 {
+    font-size: clamp(29px, 8.8vw, 36px);
+    line-height: 0.98;
+  }
+
+  .narrative > p:last-child {
+    position: static;
+    max-width: min(78vw, 315px);
+    margin: 11px 0 0;
+    font-size: clamp(13px, 3.35vw, 14px);
+    line-height: 1.48;
+  }
+
+  .technical-annotation {
+    top: auto;
+    bottom: calc(var(--safe-bottom) + 118px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: auto;
+    width: min(78vw, 315px);
+    padding-top: 11px;
+    border-top: 1px solid rgba(150, 160, 166, 0.24);
+  }
+
+  .technical-annotation .eyebrow {
+    font-size: 8px;
+  }
+
+  .technical-annotation h3 {
+    margin: 6px 0;
+    font-size: clamp(19px, 5.5vw, 23px);
+  }
+
+  .part-material {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .technical-annotation > p:last-child {
+    max-width: min(76vw, 300px);
+    font-size: 12px;
+    line-height: 1.44;
+  }
+
+  .experience-bottom {
+    bottom: max(10px, calc(var(--safe-bottom) + 8px));
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    min-height: 54px;
+    padding-top: 10px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .scroll-hint {
+    min-height: 44px;
+    gap: 8px;
+    font-size: 7px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .scroll-hint > span:first-child {
+    font-size: 19px;
+  }
+
+  .scroll-hint small {
+    display: none;
+  }
+
+  .experience-stage.has-started .scroll-hint {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .step-control {
+    min-width: 0;
+    margin: 0;
+    justify-self: center;
+    gap: 5px;
+    font-size: 9px;
+  }
+
+  .step-control > span:first-child {
+    font-size: 17px;
+  }
+
+  .step-divider {
+    font-size: 9px;
+  }
+
+  .progress-track {
+    width: clamp(34px, 11vw, 48px);
+    margin: 0 2px;
+  }
+
+  #step-label {
+    min-width: 0;
+    width: auto;
+    max-width: 76px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+
+  .motion-toggle {
+    position: static;
+    top: auto;
+    right: auto;
+    justify-self: end;
+    min-height: 44px;
+    padding: 10px 0 10px 8px;
+    font-size: 8px;
+    letter-spacing: 0.55px;
+    white-space: nowrap;
+    color: #9ca6ac;
+  }
+
+  .scene-loading {
+    left: 50%;
+    top: 66%;
+    transform: translateX(-50%);
+  }
+
+  .is-static .canvas-host {
+    top: 29%;
+    height: 60%;
+  }
+}
+
+@media (max-width: 379px) and (orientation: portrait) {
+  .hero-copy {
+    top: calc(var(--safe-top) + 82px);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(39px, 12vw, 45px);
+  }
+
+  .hero-description {
+    max-width: 285px;
+    font-size: 12.5px;
+  }
+
+  .hero-actions {
+    width: min(100%, 320px);
+    margin-top: 11px;
+  }
+
+  .hero-copy .button {
+    min-height: 48px;
+  }
+
+  .canvas-host {
+    top: 31%;
+    height: 57%;
+  }
+
+  #step-label {
+    display: none;
+  }
+
+  .motion-toggle {
+    font-size: 7.5px;
+  }
+}
+
+@media (max-width: 759px) and (max-height: 720px) and (orientation: portrait) {
+  .hero-copy {
+    top: calc(var(--safe-top) + 74px);
+  }
+
+  .hero-copy > .eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(37px, 11.5vw, 44px);
+  }
+
+  .hero-description {
+    margin-top: 8px;
+    max-width: 290px;
+    font-size: 12px;
+    line-height: 1.42;
+  }
+
+  .hero-actions {
+    margin-top: 9px;
+    gap: 0;
+  }
+
+  .hero-copy .button {
+    min-height: 46px;
+    padding-block: 12px;
+  }
+
+  .hero-link {
+    min-height: 40px;
+    padding-block: 8px;
+  }
+
+  .canvas-host {
+    top: 33%;
+    height: 55%;
+  }
+
+  .narrative {
+    top: calc(var(--safe-top) + 68px);
+  }
+
+  .narrative h2 {
+    font-size: clamp(26px, 7.8vw, 31px);
+  }
+
+  .narrative > p:last-child {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .technical-annotation {
+    bottom: calc(var(--safe-bottom) + 105px);
+    width: min(76vw, 295px);
+  }
+
+  .technical-annotation > p:last-child {
+    display: none;
+  }
+
+  .model-caption {
+    bottom: calc(var(--safe-bottom) + 106px);
+  }
+
+  .experience-bottom {
+    min-height: 50px;
+    padding-top: 8px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1023px) and (orientation: portrait) {
+  .hero-description-mobile {
+    display: none;
+  }
+
+  .hero-description-desktop {
+    display: inline;
+  }
+}
+
+@media (max-width: 1100px) and (orientation: landscape) and (max-height: 650px) {
+  .hero-description-desktop {
+    display: none;
+  }
+
+  .hero-description-mobile {
+    display: inline;
+  }
+
+  .hero-actions {
+    width: min(34vw, 280px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .hero-copy .button {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hero-link {
+    display: inline-flex;
+    min-height: 38px;
+    width: max-content;
+    align-items: center;
+  }
+
+  .experience-bottom {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .motion-toggle {
+    position: static;
+    top: auto;
+    min-height: 38px;
+    padding: 8px 0 8px 8px;
+  }
+}

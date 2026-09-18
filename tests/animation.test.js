@@ -81,7 +81,12 @@ test("chuck annotation draws leader before text and is deterministic", () => {
   assert.deepEqual(annotationReveal(chuck, start + 0.007), leader);
 });
 
-import { getViewportProfile, getRenderProfile } from "../src/experience/responsive.js";
+import {
+  chooseAdaptiveMobileTier,
+  getRenderProfile,
+  getViewportProfile,
+  summarizeFrameSamples,
+} from "../src/experience/responsive.js";
 
 test("viewport profiles preserve the same story while tightening exploded spread on phones", () => {
   const iphone = getViewportProfile(390, 844);
@@ -118,14 +123,27 @@ test("high-DPR and constrained devices lower render cost without forcing a fallb
     hardwareConcurrency: 8,
   });
 
-  assert.ok(iphoneQuality.dprCap <= 1.15);
-  assert.equal(iphoneQuality.lowDetail, true);
+  assert.equal(iphoneQuality.tier, "mobile-balanced");
+  assert.ok(iphoneQuality.dprCap >= 1.3 && iphoneQuality.dprCap <= 1.45);
+  assert.equal(iphoneQuality.lowDetail, false);
   assert.equal(iphoneQuality.shadows, false);
-  assert.equal(constrainedQuality.tier, "low-power");
+  assert.equal(constrainedQuality.tier, "mobile-low");
   assert.equal(constrainedQuality.lowDetail, true);
   assert.equal(constrainedQuality.shadows, false);
   assert.ok(desktopQuality.dprCap > iphoneQuality.dprCap);
   assert.equal(desktopQuality.shadows, true);
+});
+
+test("adaptive mobile quality upgrades or downgrades only after a stable sample window", () => {
+  assert.equal(chooseAdaptiveMobileTier({ samples: 20, average: 4, p95: 6 }), "mobile-balanced");
+  assert.equal(chooseAdaptiveMobileTier({ samples: 48, average: 7.5, p95: 11 }), "mobile-high");
+  assert.equal(chooseAdaptiveMobileTier({ samples: 48, average: 12.5, p95: 17 }), "mobile-balanced");
+  assert.equal(chooseAdaptiveMobileTier({ samples: 48, average: 17, p95: 24 }), "mobile-low");
+
+  const summary = summarizeFrameSamples([4, 5, 6, 10, 12]);
+  assert.equal(summary.samples, 5);
+  assert.ok(close(summary.average, 7.4));
+  assert.equal(summary.worst, 12);
 });
 
 import { normalizedScrollProgress } from "../src/experience/scrollMath.js";

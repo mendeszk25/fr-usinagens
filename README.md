@@ -68,6 +68,8 @@ O projeto cria `canonical` e `og:url` a partir do domínio em que estiver sendo 
 
 A experiência do torno usa o mesmo progresso mecânico normalizado (`0 → 1`) em desktop, Android e iOS. O enquadramento é adaptado por proporção da viewport em `src/experience/responsive.js` e `CameraRig.js`; em telas estreitas a vista explodida reduz somente a distância entre os componentes, sem remover etapas.
 
-A etapa principal usa viewport móvel estável (`svh`) para evitar saltos provocados pela barra do Safari/Chrome, respeita safe areas, limita DPR em telas Retina, reduz shadow map conforme o tier de renderização e mantém o 3D em hardware limitado. O fallback estático é reservado para falha real de WebGL/contexto não recuperável ou `prefers-reduced-motion` conforme a preferência do usuário.
+A etapa principal usa viewport móvel estável (`svh`) para evitar saltos provocados pela barra do Safari/Chrome, respeita safe areas e mantém o 3D em hardware limitado. `prefers-reduced-motion` reduz apenas movimentos decorativos; a desmontagem controlada pelo usuário continua ativa. O modo totalmente estático é uma escolha explícita do usuário ou um fallback de falha real de WebGL/contexto não recuperável.
+
+No mobile, a qualidade começa em `mobile-balanced` e mede o custo de renderização antes de travar um tier para a sessão/orientação: `mobile-high` (DPR até 1.60 em portrait), `mobile-balanced` (até 1.40) ou `mobile-low` (até 1.12). O modelo mobile usa geometria intermediária, materiais metálicos com microvariação otimizada, luz de recorte neutra e uma sombra de contato barata em vez de shadow map dinâmica.
 
 Matriz de validação prevista nos testes de navegador: 360×800, 390×844, 430×932, 768×1024, 844×390, 1366×768 e 1440×900, além de projeto Playwright para Chromium e WebKit.

@@ -42,19 +42,22 @@ export function createCameraRig({ centered = false } = {}) {
       }
     } else if (profile.mobileNarrow || profile.mobilePortrait) {
       const narrow = profile.mobileNarrow ? 1 : 0;
-      camera.fov = 34.2 + narrow * 0.8 + exploded * 2.4;
+      // Mobile intentionally frames the machine closer than before. The slight
+      // controlled crop restores the physical presence lost on narrow screens
+      // without scaling the model itself or changing the exploded mechanics.
+      camera.fov = 33.35 + narrow * 0.7 + exploded * 2.2;
       camera.position.set(
-        12.25 + narrow * 0.55 - carriageInspect * 0.62 - exploded * 0.12,
-        3.0 + exploded * 0.36,
-        6.15 + carriageInspect * 0.62 + overview * 0.82 + exploded * 5.75,
+        11.15 + narrow * 0.46 - carriageInspect * 0.56 - exploded * 0.1,
+        2.92 + exploded * 0.34,
+        5.55 + carriageInspect * 0.58 + overview * 0.78 + exploded * 5.35,
       );
       target.set(
-        1.15 - headstockInspect * 0.3 - carriageInspect * 0.34 + tailstockInspect * 0.2 - exploded * 0.18,
-        0.08 + exploded * 0.05,
+        1.02 - headstockInspect * 0.28 - carriageInspect * 0.3 + tailstockInspect * 0.2 - exploded * 0.16,
+        0.06 + exploded * 0.05,
         0,
       );
       useViewOffset = true;
-      viewY = height * (-0.145 + range(progress, 0.22, 0.5) * 0.145);
+      viewY = height * (-0.132 + range(progress, 0.22, 0.5) * 0.132);
     } else if (profile.tabletPortrait) {
       camera.fov = 34 + exploded * 2.1;
       camera.position.set(

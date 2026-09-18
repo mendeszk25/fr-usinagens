@@ -6,7 +6,7 @@ import { partPose, range } from "./animation.js";
 
 const PI2 = Math.PI * 2;
 
-export function createLatheAssembly({ lowPower = false } = {}) {
+export function createLatheAssembly({ lowPower = false, mobile = false, materialDetail = "high" } = {}) {
   const root = new THREE.Group();
   root.name = "UniversalHorizontalLathe";
 
@@ -44,11 +44,13 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     const mat = lowPower && (shouldMachine || shouldCast)
       ? new THREE.MeshStandardMaterial(props)
       : shouldMachine
-        ? createMachinedMaterial(props, finish === "plain" ? "turned" : finish)
+        ? createMachinedMaterial(props, finish === "plain" ? "turned" : finish, { mobile, detail: materialDetail })
         : shouldCast
-          ? createCastIronMaterial(props)
+          ? createCastIronMaterial(props, { mobile, detail: materialDetail })
           : new THREE.MeshStandardMaterial(props);
-    mat.envMapIntensity = shouldCast ? 0.44 : 0.82;
+    const baseEnvIntensity = shouldCast ? (mobile ? 0.62 : 0.54) : (mobile ? 0.96 : 0.88);
+    mat.envMapIntensity = baseEnvIntensity;
+    mat.userData.baseEnvIntensity = baseEnvIntensity;
     materials.set(key, mat);
     return rememberMaterial(partId, mat);
   }
@@ -58,7 +60,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     return geometries.get(key);
   }
 
-  function box(w, h, d, radius = 0.045, segments = lowPower ? 2 : 4) {
+  function box(w, h, d, radius = 0.045, segments = lowPower ? 2 : mobile ? 3 : 4) {
     const key = `box-${w}-${h}-${d}-${radius}-${segments}`;
     return geometry(key, () =>
       new RoundedBoxGeometry(
@@ -71,7 +73,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     );
   }
 
-  function cylinderX(radius, length, segments = lowPower ? 22 : 44) {
+  function cylinderX(radius, length, segments = lowPower ? 22 : mobile ? 34 : 44) {
     return geometry(`cx-${radius}-${length}-${segments}`, () => {
       const g = new THREE.CylinderGeometry(radius, radius, length, segments);
       g.rotateZ(Math.PI / 2);
@@ -79,13 +81,13 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function cylinderY(radius, length, segments = lowPower ? 20 : 36) {
+  function cylinderY(radius, length, segments = lowPower ? 20 : mobile ? 30 : 36) {
     return geometry(`cy-${radius}-${length}-${segments}`, () =>
       new THREE.CylinderGeometry(radius, radius, length, segments),
     );
   }
 
-  function cylinderZ(radius, length, segments = lowPower ? 20 : 36) {
+  function cylinderZ(radius, length, segments = lowPower ? 20 : mobile ? 30 : 36) {
     return geometry(`cz-${radius}-${length}-${segments}`, () => {
       const g = new THREE.CylinderGeometry(radius, radius, length, segments);
       g.rotateX(Math.PI / 2);
@@ -93,7 +95,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function coneX(radius, length, segments = lowPower ? 18 : 32) {
+  function coneX(radius, length, segments = lowPower ? 18 : mobile ? 26 : 32) {
     return geometry(`conex-${radius}-${length}-${segments}`, () => {
       const g = new THREE.ConeGeometry(radius, length, segments);
       g.rotateZ(-Math.PI / 2);
@@ -101,7 +103,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function ringX(outer, inner, length, segments = lowPower ? 24 : 48) {
+  function ringX(outer, inner, length, segments = lowPower ? 24 : mobile ? 36 : 48) {
     return geometry(`ringx-${outer}-${inner}-${length}-${segments}`, () => {
       const shape = new THREE.Shape();
       shape.absarc(0, 0, outer, 0, PI2, false);
@@ -123,7 +125,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function torusX(radius, tube, segments = lowPower ? 20 : 40) {
+  function torusX(radius, tube, segments = lowPower ? 20 : mobile ? 32 : 40) {
     return geometry(`tx-${radius}-${tube}-${segments}`, () => {
       const g = new THREE.TorusGeometry(radius, tube, 8, segments);
       g.rotateY(Math.PI / 2);
@@ -131,7 +133,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function torusY(radius, tube, segments = lowPower ? 20 : 40) {
+  function torusY(radius, tube, segments = lowPower ? 20 : mobile ? 32 : 40) {
     return geometry(`ty-${radius}-${tube}-${segments}`, () => {
       const g = new THREE.TorusGeometry(radius, tube, 8, segments);
       g.rotateX(Math.PI / 2);
@@ -139,7 +141,7 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     });
   }
 
-  function torusZ(radius, tube, segments = lowPower ? 20 : 40) {
+  function torusZ(radius, tube, segments = lowPower ? 20 : mobile ? 32 : 40) {
     return geometry(
       `tz-${radius}-${tube}-${segments}`,
       () => new THREE.TorusGeometry(radius, tube, 8, segments),
@@ -594,7 +596,8 @@ export function createLatheAssembly({ lowPower = false } = {}) {
           mat.emissive.copy(selected ? highlight : normalEmissive);
           mat.emissiveIntensity = selected ? 0.038 : 0;
         }
-        mat.envMapIntensity = activeId && !selected ? 0.5 : 0.82;
+        const baseEnv = mat.userData.baseEnvIntensity ?? 0.82;
+        mat.envMapIntensity = activeId && !selected ? baseEnv * 0.72 : baseEnv;
       }
     }
   }

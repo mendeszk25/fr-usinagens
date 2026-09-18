@@ -2,9 +2,14 @@ import { MeshStandardMaterial } from "three";
 
 // Object-space tooling marks: concentric on turned faces, axial on cylindrical
 // surfaces. Derivative filtering prevents high-frequency shimmer during scroll.
-export function createMachinedMaterial(properties, finish = "turned") {
+export function createMachinedMaterial(properties, finish = "turned", options = {}) {
   const material = new MeshStandardMaterial(properties);
   if (finish === "rubber") return material;
+  const mobile = options.mobile === true;
+  const detail = options.detail || (mobile ? "balanced" : "high");
+  const primaryFrequency = detail === "high" ? 1250.0 : 760.0;
+  const secondaryFrequency = detail === "high" ? 310.0 : 210.0;
+  const normalAmplitude = detail === "high" ? 0.00024 : 0.00016;
   material.onBeforeCompile = (shader) => {
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -32,8 +37,8 @@ export function createMachinedMaterial(properties, finish = "turned") {
         float radial = length(vToolPosition.yz);
         float face = smoothstep(0.65, 0.95, abs(vToolNormal.x));
         float coordinate = mix(vToolPosition.x, radial, face);
-        return toolWave(coordinate * 1250.0) * 0.5
-          + toolWave(coordinate * 310.0 + sin(radial * 17.0) * 0.4) * 0.3;
+        return toolWave(coordinate * ${primaryFrequency.toFixed(1)}) * 0.5
+          + toolWave(coordinate * ${secondaryFrequency.toFixed(1)} + sin(radial * 17.0) * 0.4) * 0.3;
       }`,
       )
       .replace(
@@ -44,7 +49,7 @@ export function createMachinedMaterial(properties, finish = "turned") {
       .replace(
         "#include <normal_fragment_maps>",
         `#include <normal_fragment_maps>
-      float cutHeight = toolGrain() * 0.00024;
+      float cutHeight = toolGrain() * ${normalAmplitude.toFixed(5)};
       vec3 toolQ0 = dFdx(-vViewPosition);
       vec3 toolQ1 = dFdy(-vViewPosition);
       vec3 toolR1 = cross(toolQ1, normal);
@@ -59,15 +64,18 @@ export function createMachinedMaterial(properties, finish = "turned") {
       diffuseColor.rgb *= 0.97 + toolGrain() * 0.045;`,
       );
   };
-  material.customProgramCacheKey = () => "machined-object-space-v2";
+  material.customProgramCacheKey = () => `machined-object-space-v3-${detail}`;
   return material;
 }
 
 // Cast iron should not read like perfectly smooth painted plastic. This tiny
 // object-space variation changes only roughness and albedo, keeping the model
 // lightweight while giving broad housings a more believable workshop surface.
-export function createCastIronMaterial(properties) {
+export function createCastIronMaterial(properties, options = {}) {
   const material = new MeshStandardMaterial(properties);
+  const detail = options.detail || (options.mobile ? "balanced" : "high");
+  const coarseScale = detail === "high" ? 20.0 : 15.0;
+  const fineScale = detail === "high" ? 58.0 : 38.0;
   material.onBeforeCompile = (shader) => {
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -91,8 +99,8 @@ export function createCastIronMaterial(properties) {
         return fract((p.x + p.y) * p.z);
       }
       float castNoise() {
-        vec3 coarse = floor(vCastPosition * 20.0);
-        vec3 fine = floor(vCastPosition * 58.0);
+        vec3 coarse = floor(vCastPosition * ${coarseScale.toFixed(1)});
+        vec3 fine = floor(vCastPosition * ${fineScale.toFixed(1)});
         return mix(castHash(coarse), castHash(fine), 0.32);
       }`,
       )
@@ -108,6 +116,6 @@ export function createCastIronMaterial(properties) {
       diffuseColor.rgb *= 0.965 + castNoise() * 0.055;`,
       );
   };
-  material.customProgramCacheKey = () => "cast-iron-microvariation-v1";
+  material.customProgramCacheKey = () => `cast-iron-microvariation-v2-${detail}`;
   return material;
 }
