@@ -276,16 +276,40 @@
           <a class="editorial-cta repair-cta" href="#orcamento" data-service="Reparo e recuperação">VER MAIS TRABALHOS REAIS <span aria-hidden="true">↗</span></a>
           <p class="technical-note">MESMA FUNÇÃO.<br />NOVA VIDA.</p>
         </div>
-        <div class="before-after" data-reveal>
-          <figure class="before-card">
-            <img src="/images/real/repair-before.webp" alt="Peça mecânica danificada antes do reparo" width="670" height="946" loading="lazy" decoding="async" />
-            <figcaption><span>— ANTES</span><small>Peça recebida com quebra evidente.</small></figcaption>
-          </figure>
-          <div class="repair-arrow" aria-hidden="true">→</div>
-          <figure class="after-card">
-            <img src="/images/real/repair-after.webp" alt="Nova peça metálica usinada após substituição do componente danificado" width="670" height="946" loading="lazy" decoding="async" />
-            <figcaption><span>— DEPOIS</span><small>Solução refeita para retornar à aplicação.</small></figcaption>
-          </figure>
+        <div class="repair-comparison" data-before-after data-reveal style="--compare-position: 50%;">
+          <div class="compare-stage">
+            <img class="compare-image compare-image--before" src="/images/real/repair-before.webp" alt="Peça mecânica danificada antes do reparo" width="670" height="946" loading="lazy" decoding="async" />
+            <div class="compare-after" aria-hidden="true">
+              <img class="compare-image compare-image--after" src="/images/real/repair-after.webp" alt="" width="670" height="946" loading="lazy" decoding="async" />
+            </div>
+
+            <span class="compare-label compare-label--before">ANTES</span>
+            <span class="compare-label compare-label--after">DEPOIS</span>
+
+            <div class="compare-divider" aria-hidden="true">
+              <span class="compare-handle"><span>‹</span><span>›</span></span>
+            </div>
+
+            <input
+              class="compare-range"
+              type="range"
+              min="0"
+              max="100"
+              value="50"
+              step="1"
+              aria-label="Comparar peça antes e depois do reparo"
+              aria-valuetext="50 por cento da imagem antes e 50 por cento da imagem depois"
+            />
+
+            <span class="compare-hint" aria-hidden="true">
+              <span class="compare-hint__hand">↔</span> ARRASTE PARA COMPARAR
+            </span>
+          </div>
+
+          <div class="compare-caption" aria-hidden="true">
+            <p><span>01 / ANTES</span>Peça recebida com quebra evidente.</p>
+            <p><span>02 / DEPOIS</span>Solução refeita para retornar à aplicação.</p>
+          </div>
           <p class="repair-aside">PROBLEMAS REAIS.<br />SOLUÇÕES DE VERDADE.</p>
         </div>
       </section>

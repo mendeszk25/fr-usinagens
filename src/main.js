@@ -31,6 +31,37 @@ function setupReveals() {
   return () => observer.disconnect();
 }
 
+
+function setupBeforeAfterComparisons() {
+  const comparisons = [...document.querySelectorAll("[data-before-after]")];
+  if (!comparisons.length) return () => {};
+
+  const cleanups = comparisons.map((comparison) => {
+    const range = comparison.querySelector(".compare-range");
+    if (!range) return () => {};
+
+    const update = () => {
+      const value = Math.max(0, Math.min(100, Number(range.value)));
+      comparison.style.setProperty("--compare-position", `${value}%`);
+      range.setAttribute(
+        "aria-valuetext",
+        `${value} por cento da imagem antes e ${100 - value} por cento da imagem depois`,
+      );
+    };
+
+    range.addEventListener("input", update);
+    range.addEventListener("change", update);
+    update();
+
+    return () => {
+      range.removeEventListener("input", update);
+      range.removeEventListener("change", update);
+    };
+  });
+
+  return () => cleanups.forEach((cleanup) => cleanup());
+}
+
 function setupProductionMetadata() {
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
   if (isLocal || !location.origin.startsWith("http")) return;
@@ -62,6 +93,7 @@ function setupProductionMetadata() {
 
 setupProductionMetadata();
 let disposeReveal = setupReveals();
+let disposeComparisons = setupBeforeAfterComparisons();
 
 function mountScenes() {
   const primary = mountMachiningExperience(document.querySelector("#experiencia"));
@@ -78,13 +110,17 @@ window.addEventListener("pagehide", () => {
   disposeScenes = null;
   disposeReveal?.();
   disposeReveal = null;
+  disposeComparisons?.();
+  disposeComparisons = null;
 });
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   if (!disposeScenes) disposeScenes = mountScenes();
   if (!disposeReveal) disposeReveal = setupReveals();
+  if (!disposeComparisons) disposeComparisons = setupBeforeAfterComparisons();
 });
 if (import.meta.hot) import.meta.hot.dispose(() => {
   disposeScenes?.();
   disposeViewport?.();
+  disposeComparisons?.();
 });
