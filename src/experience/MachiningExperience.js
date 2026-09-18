@@ -32,6 +32,7 @@ export function mountMachiningExperience(section) {
     if (disposed || failed || document.hidden) return;
     const part = staticMode || progress >= 0.88 ? undefined : activePart(progress);
     const anchor = canvas?.render(progress, part?.id);
+    if (canvas) host.dataset.renderProgress = progress.toFixed(4);
     annotation.update(part, anchor, progress);
     host.style.opacity = String(staticMode ? 1 : 1 - range(progress, 0.95, 1) * 0.8);
     stage.style.setProperty("--opening", String(range(progress, 0.18, 0.32)));
@@ -118,6 +119,31 @@ export function mountMachiningExperience(section) {
   }
   toggle.addEventListener("click", onToggle);
 
+  // Create the scroll/pin controller immediately, before the heavy Three.js
+  // renderer is imported. On slower phones this prevents the user from
+  // scrolling through the hero before the mechanical timeline exists.
+  scroll = createMachiningScroll(
+    stage,
+    (value) => {
+      progress = value;
+      requestDraw();
+    },
+    (value, reduced) => {
+      staticMode = value;
+      section.classList.toggle("is-static", value);
+      toggle.setAttribute("aria-pressed", String(value));
+      toggle.disabled = reduced;
+      toggle.textContent = reduced
+        ? "Movimento reduzido · vista estática"
+        : value
+          ? "Ativar experiência ao rolar ↗"
+          : "Vista estática ↗";
+      requestDraw();
+    },
+  );
+  scroll.refresh();
+  requestDraw();
+
   async function load() {
     try {
       const { createMachiningCanvas } = await import("./MachiningCanvas.js");
@@ -131,26 +157,10 @@ export function mountMachiningExperience(section) {
         },
       });
       loading.hidden = true;
-      scroll = createMachiningScroll(
-        stage,
-        (value) => {
-          progress = value;
-          requestDraw();
-        },
-        (value, reduced) => {
-          staticMode = value;
-          section.classList.toggle("is-static", value);
-          toggle.setAttribute("aria-pressed", String(value));
-          toggle.disabled = reduced;
-          toggle.textContent = reduced
-            ? "Movimento reduzido · vista estática"
-            : value
-              ? "Ativar experiência ao rolar ↗"
-              : "Vista estática ↗";
-          requestDraw();
-        },
-      );
-      scroll.refresh();
+      // The scroll controller may already be partway through the sequence if
+      // the user started swiping while Three.js was loading. Render that exact
+      // pose immediately instead of restarting from the assembled state.
+      scroll?.sync();
       requestDraw();
 
       const destination = document.getElementById(location.hash.slice(1));

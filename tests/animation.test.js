@@ -123,3 +123,15 @@ test("high-DPR and constrained devices lower render cost without forcing a fallb
   assert.equal(constrainedQuality.lowDetail, true);
   assert.ok(desktopQuality.dprCap > iphoneQuality.dprCap);
 });
+
+import { normalizedScrollProgress } from "../src/experience/scrollMath.js";
+
+test("native mobile scroll maps directly to the same normalized mechanical progress", () => {
+  assert.equal(normalizedScrollProgress(100, 100, 1100), 0);
+  assert.ok(close(normalizedScrollProgress(350, 100, 1100), 0.25));
+  assert.ok(close(normalizedScrollProgress(600, 100, 1100), 0.5));
+  assert.ok(close(normalizedScrollProgress(850, 100, 1100), 0.75));
+  assert.equal(normalizedScrollProgress(1100, 100, 1100), 1);
+  assert.equal(normalizedScrollProgress(50, 100, 1100), 0);
+  assert.equal(normalizedScrollProgress(1400, 100, 1100), 1);
+});

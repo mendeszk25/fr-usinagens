@@ -1,5 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const chromiumLaunch = {
+  args: [
+    "--no-sandbox",
+    "--use-gl=angle",
+    "--use-angle=swiftshader",
+    "--enable-unsafe-swiftshader",
+  ],
+};
+
 export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.spec.js",
@@ -16,20 +25,21 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },
-        launchOptions: {
-          args: [
-            "--no-sandbox",
-            "--use-gl=angle",
-            "--use-angle=swiftshader",
-            "--enable-unsafe-swiftshader",
-          ],
-        },
+        launchOptions: chromiumLaunch,
       },
     },
     {
-      name: "webkit",
+      name: "chromium-mobile",
       use: {
-        ...devices["Desktop Safari"],
+        ...devices["Pixel 7"],
+        viewport: { width: 412, height: 915 },
+        launchOptions: chromiumLaunch,
+      },
+    },
+    {
+      name: "webkit-mobile",
+      use: {
+        ...devices["iPhone 13"],
         viewport: { width: 390, height: 844 },
       },
     },
