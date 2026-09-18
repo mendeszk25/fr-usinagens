@@ -1731,3 +1731,64 @@
   .quote-blueprint { width: 116px; opacity: 0.85; }
   .quote-workshop-stamp { font-size: 7px; letter-spacing: 1.2px; }
 }
+
+
+/* Reference-approved quote visual: single image composition instead of split collage. */
+.quote-workshop-frame--reference {
+  min-height: 554px;
+  background: #060809;
+}
+
+.quote-workshop-frame--reference::before {
+  background:
+    linear-gradient(90deg, rgba(7, 9, 10, 0.18), transparent 18%, transparent 82%, rgba(7, 9, 10, 0.2)),
+    linear-gradient(0deg, rgba(7, 9, 10, 0.22), transparent 28%);
+}
+
+.quote-workshop-frame--reference::after {
+  inset: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.quote-workshop-main--reference {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: saturate(0.78) contrast(1.05) brightness(0.76);
+  transform: none;
+}
+
+.quote-workshop-frame--reference .quote-workshop-stamp {
+  left: 26px;
+  right: 26px;
+  bottom: 18px;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+@media (max-width: 1180px) {
+  .quote-workshop-frame--reference { min-height: 500px; }
+}
+
+@media (max-width: 759px) {
+  .quote-workshop-frame--reference { min-height: 430px; }
+  .quote-workshop-main--reference {
+    width: 100%;
+    height: 100%;
+    object-position: center center;
+  }
+  .quote-workshop-frame--reference .quote-workshop-stamp {
+    left: 18px;
+    right: 18px;
+    bottom: 16px;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 430px) {
+  .quote-workshop-frame--reference { min-height: 380px; }
+}
