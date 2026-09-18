@@ -1,4 +1,4 @@
-export function getViewportProfile(width, height) {
+export function getViewportProfile(width, height, out = {}) {
   const w = Math.max(1, Number(width) || 1);
   const h = Math.max(1, Number(height) || 1);
   const aspect = w / h;
@@ -40,22 +40,21 @@ export function getViewportProfile(width, height) {
     scrollScreens = 5;
   }
 
-  return {
-    name,
-    width: w,
-    height: h,
-    aspect,
-    portrait,
-    compact: mobilePortrait || mobileNarrow,
-    mobile: mobilePortrait || mobileNarrow || mobileLandscape,
-    mobileNarrow,
-    mobilePortrait,
-    tabletPortrait,
-    mobileLandscape,
-    desktopWide,
-    spread,
-    scrollScreens,
-  };
+  out.name = name;
+  out.width = w;
+  out.height = h;
+  out.aspect = aspect;
+  out.portrait = portrait;
+  out.compact = mobilePortrait || mobileNarrow;
+  out.mobile = mobilePortrait || mobileNarrow || mobileLandscape;
+  out.mobileNarrow = mobileNarrow;
+  out.mobilePortrait = mobilePortrait;
+  out.tabletPortrait = tabletPortrait;
+  out.mobileLandscape = mobileLandscape;
+  out.desktopWide = desktopWide;
+  out.spread = spread;
+  out.scrollScreens = scrollScreens;
+  return out;
 }
 
 export function getRenderProfile(viewport, env = {}) {
@@ -74,6 +73,7 @@ export function getRenderProfile(viewport, env = {}) {
   let shadowMapSize = 1024;
   let antialias = true;
   let lowDetail = false;
+  let shadows = true;
 
   if (constrained) {
     tier = "low-power";
@@ -81,12 +81,20 @@ export function getRenderProfile(viewport, env = {}) {
     shadowMapSize = 512;
     antialias = false;
     lowDetail = true;
+    shadows = false;
   } else if (mobile) {
     tier = "mobile";
-    dprCap = viewport.mobileLandscape ? 1.2 : 1.3;
+    // A 1.3 DPR cap still costs ~69% more fragments than 1.0. The lathe has a
+    // dense metallic scene, so keep mobile close to native CSS resolution and
+    // spend the budget on smooth motion instead of invisible Retina pixels.
+    dprCap = viewport.mobileLandscape ? 1.0 : 1.15;
     shadowMapSize = 512;
     antialias = true;
-    lowDetail = false;
+    lowDetail = true;
+    // The industrial background already grounds the machine. Dynamic shadow
+    // rendering effectively redraws much of this many-mesh scene a second time
+    // every frame, which is disproportionately expensive on phone GPUs.
+    shadows = false;
   } else if (viewport.width < 1180 || dpr > 2) {
     tier = "medium";
     dprCap = 1.45;
@@ -102,6 +110,7 @@ export function getRenderProfile(viewport, env = {}) {
     antialias,
     lowDetail,
     constrained,
+    shadows,
   };
 }
 

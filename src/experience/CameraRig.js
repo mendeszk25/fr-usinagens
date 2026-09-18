@@ -5,10 +5,12 @@ import { getViewportProfile } from "./responsive.js";
 export function createCameraRig({ centered = false } = {}) {
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 120);
   const target = new THREE.Vector3();
+  const profile = {};
   let currentProfile = "";
+  let hadViewOffset = false;
 
   function update(progress, width, height) {
-    const profile = getViewportProfile(width, height);
+    getViewportProfile(width, height, profile);
     const headstockInspect = range(progress, 0.08, 0.2);
     const chuckInspect = range(progress, 0.18, 0.34);
     const carriageInspect = range(progress, 0.36, 0.62);
@@ -18,14 +20,17 @@ export function createCameraRig({ centered = false } = {}) {
     const final = range(progress, 0.94, 1);
 
     camera.aspect = profile.aspect;
-    camera.clearViewOffset();
+    let useViewOffset = false;
+    let viewX = 0;
+    let viewY = 0;
 
     if (centered) {
       if (profile.mobileNarrow || profile.mobilePortrait) {
         camera.fov = 35.5;
         camera.position.set(11.2, 3.0, 7.2);
         target.set(0.75, 0.02, 0);
-        camera.setViewOffset(width, height, 0, -height * 0.04, width, height);
+        useViewOffset = true;
+        viewY = -height * 0.04;
       } else if (profile.tabletPortrait) {
         camera.fov = 35;
         camera.position.set(8.5, 3.0, 9.2);
@@ -36,9 +41,6 @@ export function createCameraRig({ centered = false } = {}) {
         target.set(0.05, -0.04, 0);
       }
     } else if (profile.mobileNarrow || profile.mobilePortrait) {
-      // A long lathe cannot be framed on a 9:19 screen by simply zooming out.
-      // Looking farther down the machine axis keeps it large while preserving
-      // chuck, carriage and tailstock in the same story.
       const narrow = profile.mobileNarrow ? 1 : 0;
       camera.fov = 34.2 + narrow * 0.8 + exploded * 2.4;
       camera.position.set(
@@ -51,14 +53,8 @@ export function createCameraRig({ centered = false } = {}) {
         0.08 + exploded * 0.05,
         0,
       );
-      camera.setViewOffset(
-        width,
-        height,
-        0,
-        height * (-0.145 + range(progress, 0.22, 0.5) * 0.145),
-        width,
-        height,
-      );
+      useViewOffset = true;
+      viewY = height * (-0.145 + range(progress, 0.22, 0.5) * 0.145);
     } else if (profile.tabletPortrait) {
       camera.fov = 34 + exploded * 2.1;
       camera.position.set(
@@ -71,10 +67,9 @@ export function createCameraRig({ centered = false } = {}) {
         0.06 + exploded * 0.06,
         0,
       );
-      camera.setViewOffset(width, height, 0, -height * 0.055, width, height);
+      useViewOffset = true;
+      viewY = -height * 0.055;
     } else if (profile.mobileLandscape) {
-      // Short landscape screens need vertical headroom more than width. Keep the
-      // 3/4 presentation, open the camera slightly and bias the subject upward.
       camera.fov = 36.5 + exploded * 1.7;
       camera.position.set(
         5.4 - headstockInspect * 0.2 - carriageInspect * 0.32 - exploded * 0.25,
@@ -86,7 +81,9 @@ export function createCameraRig({ centered = false } = {}) {
         0.02 + exploded * 0.08,
         0,
       );
-      camera.setViewOffset(width, height, -width * 0.015, -height * 0.035, width, height);
+      useViewOffset = true;
+      viewX = -width * 0.015;
+      viewY = -height * 0.035;
     } else {
       camera.fov = (profile.desktopWide ? 33.2 : 33.8) + exploded * 1.55;
       camera.position.set(
@@ -99,19 +96,27 @@ export function createCameraRig({ centered = false } = {}) {
         0.06 + exploded * 0.08,
         0,
       );
-      camera.setViewOffset(
-        width,
-        height,
-        -width * (profile.desktopWide ? 0.036 : 0.026) * (1 - range(progress, 0.48, 0.82)),
-        -height * 0.006,
-        width,
-        height,
-      );
+      useViewOffset = true;
+      viewX = -width * (profile.desktopWide ? 0.036 : 0.026) * (1 - range(progress, 0.48, 0.82));
+      viewY = -height * 0.006;
     }
 
     camera.lookAt(target);
-    camera.updateProjectionMatrix();
-    camera.updateMatrixWorld();
+
+    // setViewOffset/clearViewOffset already update the projection matrix. The
+    // previous implementation cleared, set and then updated again every frame.
+    if (useViewOffset) {
+      camera.setViewOffset(width, height, viewX, viewY, width, height);
+      hadViewOffset = true;
+    } else if (hadViewOffset) {
+      camera.clearViewOffset();
+      hadViewOffset = false;
+    } else {
+      camera.updateProjectionMatrix();
+    }
+
+    // renderer.render() updates camera/world matrices. Avoid a second traversal
+    // here on every mobile frame.
     currentProfile = profile.name;
     return profile;
   }

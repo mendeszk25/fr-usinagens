@@ -15,6 +15,9 @@ export function mountMachiningExperience(section) {
   const bar = stage.querySelector("#scroll-progress");
   const step = stage.querySelector("#step-number");
   const label = stage.querySelector("#step-label");
+  const chapterDescription = stage.querySelector("#chapter-description");
+  const heroLinks = [...hero.querySelectorAll("a")];
+  const devMode = import.meta.env.DEV;
 
   let canvas;
   let scroll;
@@ -23,7 +26,7 @@ export function mountMachiningExperience(section) {
   let disposed = false;
   let frame = 0;
   let currentChapter = -1;
-  let override = false;
+  let heroInteractive = true;
   let failed = false;
   let contextTimer = 0;
 
@@ -32,21 +35,25 @@ export function mountMachiningExperience(section) {
     if (disposed || failed || document.hidden) return;
     const part = staticMode || progress >= 0.88 ? undefined : activePart(progress);
     const anchor = canvas?.render(progress, part?.id);
-    if (canvas) host.dataset.renderProgress = progress.toFixed(4);
+    if (canvas && devMode) host.dataset.renderProgress = progress.toFixed(4);
     annotation.update(part, anchor, progress);
     host.style.opacity = String(staticMode ? 1 : 1 - range(progress, 0.95, 1) * 0.8);
     stage.style.setProperty("--opening", String(range(progress, 0.18, 0.32)));
 
     const intro = 1 - range(progress, 0.12, 0.23);
     hero.style.opacity = staticMode ? "0" : String(intro);
-    hero.querySelectorAll("a").forEach((link) => {
-      link.inert = staticMode || intro < 0.1;
-    });
-    hero.style.pointerEvents = staticMode || intro < 0.1 ? "none" : "";
+    const nextHeroInteractive = !(staticMode || intro < 0.1);
+    if (nextHeroInteractive !== heroInteractive) {
+      heroInteractive = nextHeroInteractive;
+      heroLinks.forEach((link) => {
+        link.inert = !heroInteractive;
+      });
+      hero.style.pointerEvents = heroInteractive ? "" : "none";
+    }
 
     stage.classList.toggle("has-started", !staticMode && progress > 0.035);
     narrative.style.opacity = staticMode ? "1" : String(range(progress, 0.17, 0.24));
-    stage.querySelector("#chapter-description").style.opacity = part ? "0" : "1";
+    chapterDescription.style.opacity = part ? "0" : "1";
     bar.style.transform = `scaleX(${staticMode ? 1 : progress})`;
 
     const chapter = staticMode ? 0 : chapters.findLastIndex((c) => progress >= c.from);
@@ -55,10 +62,10 @@ export function mountMachiningExperience(section) {
       step.textContent = String(Math.max(0, chapter) + 1).padStart(2, "0");
       label.textContent = data.label;
       stage.querySelector("#chapter-title").textContent = data.title;
-      stage.querySelector("#chapter-description").textContent = data.description;
+      chapterDescription.textContent = data.description;
       currentChapter = chapter;
     }
-    stage.dataset.progress = progress.toFixed(4);
+    if (devMode) stage.dataset.progress = progress.toFixed(4);
   }
 
   function requestDraw() {
@@ -80,7 +87,7 @@ export function mountMachiningExperience(section) {
     section.classList.add("is-fallback");
     hero.style.opacity = "1";
     hero.style.pointerEvents = "";
-    hero.querySelectorAll("a").forEach((link) => {
+    heroLinks.forEach((link) => {
       link.inert = false;
     });
     narrative.style.opacity = "0";
@@ -109,13 +116,15 @@ export function mountMachiningExperience(section) {
 
   const observer = new ResizeObserver(() => {
     canvas?.resize();
+    annotation.invalidate?.();
     requestDraw();
   });
   observer.observe(host);
 
   function onToggle() {
-    override = !override;
-    scroll?.setStatic(override);
+    // If iOS has Reduce Motion enabled, static is still the respectful default,
+    // but the user can explicitly opt into the mechanical scroll experience.
+    scroll?.setStatic(!staticMode);
   }
   toggle.addEventListener("click", onToggle);
 
@@ -132,12 +141,12 @@ export function mountMachiningExperience(section) {
       staticMode = value;
       section.classList.toggle("is-static", value);
       toggle.setAttribute("aria-pressed", String(value));
-      toggle.disabled = reduced;
-      toggle.textContent = reduced
-        ? "Movimento reduzido · vista estática"
-        : value
-          ? "Ativar experiência ao rolar ↗"
-          : "Vista estática ↗";
+      toggle.disabled = false;
+      toggle.textContent = value
+        ? reduced
+          ? "Movimento reduzido · ativar 3D ↗"
+          : "Ativar experiência ao rolar ↗"
+        : "Vista estática ↗";
       requestDraw();
     },
   );

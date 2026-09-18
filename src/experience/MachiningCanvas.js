@@ -12,13 +12,14 @@ export function createMachiningCanvas(host, options = {}) {
   const renderer = new THREE.WebGLRenderer({
     antialias: initialQuality.antialias,
     alpha: true,
+    preserveDrawingBuffer: false,
     powerPreference: initialQuality.constrained ? "default" : "high-performance",
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.02;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = initialQuality.shadows;
+  renderer.shadowMap.type = initialQuality.shadows ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
   renderer.setClearColor(0x080a0b, 0);
   renderer.domElement.style.touchAction = "pan-y";
   host.append(renderer.domElement);
@@ -29,6 +30,7 @@ export function createMachiningCanvas(host, options = {}) {
   const lighting = createSceneLighting(scene, renderer, { quality: initialQuality });
   const rig = createCameraRig({ centered: options.centered });
   const projected = new THREE.Vector3();
+  const partById = new Map(assembly.parts.map((item) => [item.data.id, item]));
   const anchor = { x: 0, y: 0 };
 
   let width = 1;
@@ -40,6 +42,7 @@ export function createMachiningCanvas(host, options = {}) {
   let viewport = initialViewport;
   let quality = initialQuality;
   let profileKey = "";
+  let appliedDpr = 0;
 
   const emitProfile = () => {
     const nextKey = `${viewport.name}:${quality.tier}`;
@@ -64,13 +67,20 @@ export function createMachiningCanvas(host, options = {}) {
 
   function resize() {
     if (disposed) return;
-    width = Math.max(1, Math.round(host.clientWidth));
-    height = Math.max(1, Math.round(host.clientHeight));
+    const nextWidth = Math.max(1, Math.round(host.clientWidth));
+    const nextHeight = Math.max(1, Math.round(host.clientHeight));
+    const sizeChanged = nextWidth !== width || nextHeight !== height;
+    width = nextWidth;
+    height = nextHeight;
     viewport = getViewportProfile(width, height);
     quality = getRenderProfile(viewport, browserEnvironment());
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, quality.dprCap));
-    renderer.setSize(width, height, false);
+    const nextDpr = Math.min(window.devicePixelRatio || 1, quality.dprCap);
+    if (Math.abs(nextDpr - appliedDpr) > 0.01) {
+      appliedDpr = nextDpr;
+      renderer.setPixelRatio(nextDpr);
+    }
+    if (sizeChanged) renderer.setSize(width, height, false);
     lighting.setQuality(quality);
     emitProfile();
   }
@@ -92,7 +102,7 @@ export function createMachiningCanvas(host, options = {}) {
       emitProfile();
     }
 
-    const part = activeId && assembly.parts.find((p) => p.data.id === activeId);
+    const part = activeId ? partById.get(activeId) : undefined;
     if (!part) return null;
     part.group.getWorldPosition(projected);
     projected.project(rig.camera);

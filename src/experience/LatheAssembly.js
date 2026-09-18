@@ -41,11 +41,13 @@ export function createLatheAssembly({ lowPower = false } = {}) {
     const props = palette[type] || palette.castIron;
     const shouldMachine = ["machined", "polished", "darkSteel", "toolSteel"].includes(type);
     const shouldCast = type.startsWith("castIron");
-    const mat = shouldMachine
-      ? createMachinedMaterial(props, finish === "plain" ? "turned" : finish)
-      : shouldCast
-        ? createCastIronMaterial(props)
-        : new THREE.MeshStandardMaterial(props);
+    const mat = lowPower && (shouldMachine || shouldCast)
+      ? new THREE.MeshStandardMaterial(props)
+      : shouldMachine
+        ? createMachinedMaterial(props, finish === "plain" ? "turned" : finish)
+        : shouldCast
+          ? createCastIronMaterial(props)
+          : new THREE.MeshStandardMaterial(props);
     mat.envMapIntensity = shouldCast ? 0.44 : 0.82;
     materials.set(key, mat);
     return rememberMaterial(partId, mat);
@@ -580,21 +582,30 @@ export function createLatheAssembly({ lowPower = false } = {}) {
 
   const normalEmissive = new THREE.Color("#000000");
   const highlight = new THREE.Color("#75909d");
+  let lastActiveId = Symbol("initial-active-part");
 
-  function update(progress, activeId, spread = 1) {
-    const safeSpread = Math.min(1, Math.max(0.5, Number(spread) || 1));
+  function updateMaterialSelection(activeId) {
+    if (activeId === lastActiveId) return;
+    lastActiveId = activeId;
     for (const item of parts) {
-      const pose = partPose(item.data, progress, safeSpread, item.pose);
-      item.group.position.set(pose.x, pose.y, pose.z);
-      item.group.rotation.set(pose.rotationX, pose.rotationY, pose.rotationZ);
+      const selected = item.data.id === activeId;
       for (const mat of item.materials) {
-        const selected = item.data.id === activeId;
         if (mat.emissive) {
           mat.emissive.copy(selected ? highlight : normalEmissive);
           mat.emissiveIntensity = selected ? 0.038 : 0;
         }
         mat.envMapIntensity = activeId && !selected ? 0.5 : 0.82;
       }
+    }
+  }
+
+  function update(progress, activeId, spread = 1) {
+    const safeSpread = Math.min(1, Math.max(0.5, Number(spread) || 1));
+    updateMaterialSelection(activeId);
+    for (const item of parts) {
+      const pose = partPose(item.data, progress, safeSpread, item.pose);
+      item.group.position.set(pose.x, pose.y, pose.z);
+      item.group.rotation.set(pose.rotationX, pose.rotationY, pose.rotationZ);
     }
 
     // The four reference-inspired tool-post bolts visibly release before the
@@ -609,7 +620,8 @@ export function createLatheAssembly({ lowPower = false } = {}) {
       -0.105 + 0.065 * range(progress, 0.72, 0.9),
       -0.018 + 0.018 * range(progress, 0.88, 1),
     );
-    root.updateMatrixWorld(true);
+    // renderer.render() updates world matrices immediately afterwards. Doing a
+    // full forced traversal here doubled matrix work on every mobile frame.
   }
 
   return {

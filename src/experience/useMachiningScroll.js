@@ -9,12 +9,19 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 const isLocalDebug = () =>
   typeof location !== "undefined" && ["localhost", "127.0.0.1"].includes(location.hostname);
 
+const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+
 export function createMachiningScroll(stage, onProgress, onMode) {
-  let staticOverride = false;
+  // null = follow the OS preference. true/false = explicit user choice.
+  let staticOverride = null;
   let destroyed = false;
   let trigger;
   let structuralRaf = 0;
-  let progressRaf = 0;
+  let trackingRaf = 0;
+  let trackingUntil = 0;
+  let touchActive = false;
+  let lastSampleY = window.scrollY;
+  let stableFrames = 0;
   let lastWidth = Math.round(window.visualViewport?.width || innerWidth);
   let lastOrientation = lastWidth >= (window.visualViewport?.height || innerHeight) ? "landscape" : "portrait";
   const reducedQuery = matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,6 +31,8 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     const profile = getViewportProfile(stage.clientWidth || innerWidth, stage.clientHeight || innerHeight);
     return Math.max(1, Math.round(stage.clientHeight * profile.scrollScreens));
   };
+
+  const isStaticMode = () => staticOverride ?? reducedQuery.matches;
 
   function publishDebug() {
     if (!isLocalDebug()) return;
@@ -37,40 +46,78 @@ export function createMachiningScroll(stage, onProgress, onMode) {
       triggerProgress: trigger?.progress ?? null,
       triggerActive: trigger?.isActive ?? false,
       triggerSpan: Number.isFinite(span) ? span : null,
-      staticMode: reducedQuery.matches || staticOverride,
+      staticMode: isStaticMode(),
       reducedMotion: reducedQuery.matches,
+      explicitMotionOverride: staticOverride === false,
       stageHeight: stage.clientHeight,
       stageTop: stage.getBoundingClientRect().top,
       visualViewportWidth: window.visualViewport?.width ?? innerWidth,
       visualViewportHeight: window.visualViewport?.height ?? innerHeight,
       pinSpacerCount: document.querySelectorAll(".pin-spacer").length,
+      tracking: Boolean(trackingRaf),
+      touchActive,
     };
   }
 
   function emitProgress(value, source = "scroll") {
     if (destroyed) return;
     const next = clamp01(value);
+    if (Math.abs(next - state.progress) < 0.00025 && source === state.source) return;
     state.progress = next;
     state.source = source;
     onProgress(next);
     publishDebug();
   }
 
-  function syncProgressFromNativeScroll(source = "native-scroll") {
-    progressRaf = 0;
-    if (destroyed || !trigger || reducedQuery.matches || staticOverride) return;
-    const next = normalizedScrollProgress(window.scrollY, trigger.start, trigger.end);
-    if (Math.abs(next - state.progress) > 0.0005 || source !== state.source) {
-      emitProgress(next, source);
+  function progressFromDocument() {
+    if (!trigger) return state.progress;
+    return normalizedScrollProgress(window.scrollY, trigger.start, trigger.end);
+  }
+
+  function shouldKeepTracking(y, changed) {
+    if (!trigger || isStaticMode()) return false;
+    const h = Math.max(1, stage.clientHeight || innerHeight);
+    const nearStory = y >= trigger.start - h * 0.35 && y <= trigger.end + h * 0.35;
+    if (!nearStory) return false;
+    return changed || touchActive || trigger.isActive || now() < trackingUntil || stableFrames < 4;
+  }
+
+  // Safari can throttle ScrollTrigger/touch callbacks during native momentum.
+  // The scroll position itself remains the source of truth, so while the hero is
+  // active we sample it once per animation frame. This also gives Android one
+  // predictable progress update per frame instead of event-frequency bursts.
+  function trackingTick() {
+    trackingRaf = 0;
+    if (destroyed || !trigger || isStaticMode()) return;
+
+    const y = window.scrollY;
+    const changed = Math.abs(y - lastSampleY) > 0.2;
+    const next = progressFromDocument();
+
+    if (changed || Math.abs(next - state.progress) > 0.00025) {
+      stableFrames = 0;
+      emitProgress(next, "raf-scroll");
+    } else {
+      stableFrames += 1;
+    }
+
+    lastSampleY = y;
+    if (shouldKeepTracking(y, changed)) trackingRaf = requestAnimationFrame(trackingTick);
+  }
+
+  function ensureTracking(source = "scroll", keepAliveMs = 420) {
+    if (destroyed || isStaticMode() || !trigger) return;
+    trackingUntil = Math.max(trackingUntil, now() + keepAliveMs);
+    if (!trackingRaf) trackingRaf = requestAnimationFrame(trackingTick);
+    if (isLocalDebug()) {
+      state.source = source;
+      publishDebug();
     }
   }
 
-  function scheduleProgressSync(source = "native-scroll") {
-    if (destroyed || progressRaf) return;
-    progressRaf = requestAnimationFrame(() => syncProgressFromNativeScroll(source));
-  }
-
   function killSequence() {
+    if (trackingRaf) cancelAnimationFrame(trackingRaf);
+    trackingRaf = 0;
     trigger?.kill();
     trigger = undefined;
   }
@@ -85,35 +132,43 @@ export function createMachiningScroll(stage, onProgress, onMode) {
       pinSpacing: true,
       invalidateOnRefresh: true,
       anticipatePin: 1,
-      onUpdate(self) {
-        // Use the scroll trigger's normalized progress directly. This avoids a
-        // scrubbed object tween becoming an extra moving part on touch devices.
-        emitProgress(self.progress, "scrolltrigger");
+      onEnter() {
+        ensureTracking("enter", 700);
+      },
+      onEnterBack() {
+        ensureTracking("enter-back", 700);
+      },
+      onLeave() {
+        emitProgress(1, "leave");
+      },
+      onLeaveBack() {
+        emitProgress(0, "leave-back");
+      },
+      onUpdate() {
+        // Do not render here. Event rates differ across Chrome/Safari. Instead,
+        // wake the single RAF sampler which derives progress from window.scrollY.
+        ensureTracking("scrolltrigger", 520);
       },
       onRefresh(self) {
-        // A refresh can happen after fonts/orientation changes. Immediately
-        // resync to the current document scroll position instead of resetting.
+        // Never force-scroll during a normal refresh. Safari's address bar and
+        // font/layout updates can otherwise fight native momentum scrolling.
         const next = normalizedScrollProgress(window.scrollY, self.start, self.end);
         emitProgress(next, "refresh");
+        ensureTracking("refresh", 300);
       },
     });
 
-    // If the 3D renderer loads after the user has already started scrolling,
-    // catch up immediately. This is particularly important on slower phones.
-    requestAnimationFrame(() => syncProgressFromNativeScroll("initial-sync"));
+    lastSampleY = window.scrollY;
+    ensureTracking("initial-sync", 600);
   }
 
   function applyMode({ keepScroll = false } = {}) {
     if (destroyed) return;
-    const reduced = reducedQuery.matches;
-    const isStatic = reduced || staticOverride;
-    const previousProgress = state.progress;
-    const previousStart = trigger?.start;
-    const previousEnd = trigger?.end;
+    const isStatic = isStaticMode();
     const stageTop = stage.getBoundingClientRect().top + window.scrollY;
 
     killSequence();
-    onMode(isStatic, reduced);
+    onMode(isStatic, reducedQuery.matches);
 
     if (isStatic) {
       emitProgress(0, "static");
@@ -128,45 +183,26 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     if (!keepScroll) {
       window.scrollTo({ top: stageTop, behavior: "auto" });
       emitProgress(0, "mode-reset");
-      return;
-    }
-
-    // When toggling/recreating while the sequence is active, preserve the same
-    // mechanical pose using the new trigger span.
-    if (
-      previousProgress > 0 &&
-      previousProgress < 1 &&
-      Number.isFinite(previousStart) &&
-      Number.isFinite(previousEnd)
-    ) {
-      const y = trigger.start + (trigger.end - trigger.start) * previousProgress;
-      window.scrollTo({ top: y, behavior: "auto" });
-      emitProgress(previousProgress, "mode-preserve");
     } else {
-      scheduleProgressSync("mode-sync");
+      ensureTracking("mode-sync", 700);
     }
   }
 
-  function preserveProgressRefresh() {
+  function structuralRefresh() {
     structuralRaf = 0;
-    if (destroyed || !trigger) return;
-    const progress = state.progress;
-    const wasInsideSequence = progress > 0 && progress < 1;
+    if (destroyed || !trigger || isStaticMode()) return;
 
+    // Orientation/real width changes are rare and safe to refresh. Preserve the
+    // current physical scroll position instead of writing window.scrollTo(), so
+    // an iOS gesture can never be cancelled by our own refresh logic.
     ScrollTrigger.refresh();
-
-    if (wasInsideSequence && trigger) {
-      const y = trigger.start + (trigger.end - trigger.start) * progress;
-      window.scrollTo({ top: y, behavior: "auto" });
-      emitProgress(progress, "structural-refresh");
-    } else {
-      scheduleProgressSync("structural-sync");
-    }
+    emitProgress(progressFromDocument(), "structural-refresh");
+    ensureTracking("structural-refresh", 800);
   }
 
   function scheduleStructuralRefresh() {
     if (structuralRaf || destroyed) return;
-    structuralRaf = requestAnimationFrame(() => requestAnimationFrame(preserveProgressRefresh));
+    structuralRaf = requestAnimationFrame(() => requestAnimationFrame(structuralRefresh));
   }
 
   function onViewportResize() {
@@ -177,27 +213,43 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     const widthChanged = Math.abs(width - lastWidth) > 24;
     const orientationChanged = orientation !== lastOrientation;
 
-    // Address bars and virtual keyboards primarily change height. Do not refresh
-    // the pin/timeline for those transient mobile UI changes.
+    // Browser chrome and the software keyboard mostly change height. Treating
+    // those as structural resizes causes refresh storms and dropped frames.
     if (!widthChanged && !orientationChanged) return;
     lastWidth = width;
     lastOrientation = orientation;
     scheduleStructuralRefresh();
   }
 
-  const onReducedChange = () => applyMode({ keepScroll: true });
+  const onReducedChange = () => {
+    // A new OS preference should become the default again; the user can still
+    // explicitly opt into the animated experience via the on-page control.
+    staticOverride = null;
+    applyMode({ keepScroll: true });
+  };
   reducedQuery.addEventListener?.("change", onReducedChange);
   window.addEventListener("orientationchange", scheduleStructuralRefresh, { passive: true });
   window.addEventListener("resize", onViewportResize, { passive: true });
   window.visualViewport?.addEventListener("resize", onViewportResize, { passive: true });
 
-  // Native scroll/touch is a safety net for mobile browsers. It does not create
-  // a second animation; it computes the exact same normalized scroll progress
-  // from ScrollTrigger's start/end values and feeds the same deterministic pose.
-  const onNativeScroll = () => scheduleProgressSync("native-scroll");
-  const onNativeTouchMove = () => scheduleProgressSync("touchmove");
+  const onNativeScroll = () => ensureTracking("native-scroll", 900);
+  const onTouchStart = () => {
+    touchActive = true;
+    ensureTracking("touchstart", 1200);
+  };
+  const onTouchMove = () => ensureTracking("touchmove", 1200);
+  const onTouchEnd = () => {
+    touchActive = false;
+    // Keep sampling long enough to follow iOS/Android momentum after the finger
+    // leaves the glass.
+    ensureTracking("touchend", 1600);
+  };
+
   window.addEventListener("scroll", onNativeScroll, { passive: true });
-  window.addEventListener("touchmove", onNativeTouchMove, { passive: true });
+  window.addEventListener("touchstart", onTouchStart, { passive: true });
+  window.addEventListener("touchmove", onTouchMove, { passive: true });
+  window.addEventListener("touchend", onTouchEnd, { passive: true });
+  window.addEventListener("touchcancel", onTouchEnd, { passive: true });
 
   applyMode({ keepScroll: true });
   document.fonts?.ready.then(() => {
@@ -207,28 +259,40 @@ export function createMachiningScroll(stage, onProgress, onMode) {
   return {
     setStatic(value) {
       if (destroyed) return;
-      staticOverride = value;
+      staticOverride = Boolean(value);
       applyMode({ keepScroll: false });
+    },
+    followSystemMotionPreference() {
+      if (destroyed) return;
+      staticOverride = null;
+      applyMode({ keepScroll: true });
     },
     refresh() {
       if (!destroyed) scheduleStructuralRefresh();
     },
     sync() {
-      scheduleProgressSync("manual-sync");
+      ensureTracking("manual-sync", 900);
+      if (trigger && !isStaticMode()) emitProgress(progressFromDocument(), "manual-sync");
     },
     get progress() {
       return state.progress;
     },
+    get staticMode() {
+      return isStaticMode();
+    },
     dispose() {
       destroyed = true;
       cancelAnimationFrame(structuralRaf);
-      cancelAnimationFrame(progressRaf);
+      cancelAnimationFrame(trackingRaf);
       killSequence();
       window.removeEventListener("orientationchange", scheduleStructuralRefresh);
       window.removeEventListener("resize", onViewportResize);
       window.visualViewport?.removeEventListener("resize", onViewportResize);
       window.removeEventListener("scroll", onNativeScroll);
-      window.removeEventListener("touchmove", onNativeTouchMove);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
       reducedQuery.removeEventListener?.("change", onReducedChange);
       if (isLocalDebug() && window.__FR_DEBUG__) delete window.__FR_DEBUG__;
     },

@@ -118,10 +118,14 @@ test("high-DPR and constrained devices lower render cost without forcing a fallb
     hardwareConcurrency: 8,
   });
 
-  assert.ok(iphoneQuality.dprCap <= 1.3);
+  assert.ok(iphoneQuality.dprCap <= 1.15);
+  assert.equal(iphoneQuality.lowDetail, true);
+  assert.equal(iphoneQuality.shadows, false);
   assert.equal(constrainedQuality.tier, "low-power");
   assert.equal(constrainedQuality.lowDetail, true);
+  assert.equal(constrainedQuality.shadows, false);
   assert.ok(desktopQuality.dprCap > iphoneQuality.dprCap);
+  assert.equal(desktopQuality.shadows, true);
 });
 
 import { normalizedScrollProgress } from "../src/experience/scrollMath.js";
@@ -134,4 +138,15 @@ test("native mobile scroll maps directly to the same normalized mechanical progr
   assert.equal(normalizedScrollProgress(1100, 100, 1100), 1);
   assert.equal(normalizedScrollProgress(50, 100, 1100), 0);
   assert.equal(normalizedScrollProgress(1400, 100, 1100), 1);
+});
+
+
+test("viewport classification can reuse a preallocated object in the render hot path", () => {
+  const out = {};
+  const first = getViewportProfile(390, 844, out);
+  const second = getViewportProfile(412, 915, out);
+  assert.equal(first, out);
+  assert.equal(second, out);
+  assert.equal(out.name, "mobile-portrait");
+  assert.equal(out.width, 412);
 });

@@ -72,14 +72,18 @@ export function createSceneLighting(scene, renderer, options = {}) {
   function setQuality(quality = {}) {
     const nextSize = quality.shadowMapSize || 1024;
     lowDetail = Boolean(quality.lowDetail);
-    renderer.shadowMap.enabled = true;
-    if (nextSize !== shadowSize) {
+    const shadowsEnabled = quality.shadows !== false;
+    renderer.shadowMap.enabled = shadowsEnabled;
+    key.castShadow = shadowsEnabled;
+    ground.receiveShadow = shadowsEnabled;
+    if (shadowsEnabled && nextSize !== shadowSize) {
       shadowSize = nextSize;
       key.shadow.mapSize.set(nextSize, nextSize);
       key.shadow.map?.dispose();
       key.shadow.map = null;
       key.shadow.needsUpdate = true;
     }
+    ground.visible = shadowsEnabled;
     groundMaterial.opacity = lowDetail ? 0.18 : 0.3;
   }
 
