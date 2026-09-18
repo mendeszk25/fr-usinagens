@@ -2,6 +2,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getViewportProfile } from "./responsive.js";
 import { clamp01, normalizedScrollProgress } from "./scrollMath.js";
+import { MotionMode, resolveMotionMode } from "./motionMode.js";
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -12,8 +13,9 @@ const isLocalDebug = () =>
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 
 export function createMachiningScroll(stage, onProgress, onMode) {
-  // null = follow the OS preference. true/false = explicit user choice.
-  let staticOverride = null;
+  // Reduced Motion is a presentation preference, not an instruction to destroy
+  // the core scroll-controlled mechanical story. Static mode is explicit only.
+  let staticExplicit = false;
   let destroyed = false;
   let trigger;
   let structuralRaf = 0;
@@ -32,13 +34,18 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     return Math.max(1, Math.round(stage.clientHeight * profile.scrollScreens));
   };
 
-  const isStaticMode = () => staticOverride ?? reducedQuery.matches;
+  const motionMode = () =>
+    resolveMotionMode({ reducedMotion: reducedQuery.matches, staticExplicit });
+
+  const isStaticMode = () => motionMode() === MotionMode.STATIC;
 
   function publishDebug() {
     if (!isLocalDebug()) return;
     const span = trigger ? trigger.end - trigger.start : 0;
     window.__FR_DEBUG__ = {
       progress: state.progress,
+      scrollProgress: trigger ? progressFromDocument() : state.progress,
+      renderProgress: Number(stage.dataset.progress || state.progress),
       source: state.source,
       scrollY: window.scrollY,
       triggerStart: trigger?.start ?? null,
@@ -47,8 +54,9 @@ export function createMachiningScroll(stage, onProgress, onMode) {
       triggerActive: trigger?.isActive ?? false,
       triggerSpan: Number.isFinite(span) ? span : null,
       staticMode: isStaticMode(),
+      staticExplicit,
       reducedMotion: reducedQuery.matches,
-      explicitMotionOverride: staticOverride === false,
+      motionMode: motionMode(),
       stageHeight: stage.clientHeight,
       stageTop: stage.getBoundingClientRect().top,
       visualViewportWidth: window.visualViewport?.width ?? innerWidth,
@@ -82,10 +90,10 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     return changed || touchActive || trigger.isActive || now() < trackingUntil || stableFrames < 4;
   }
 
-  // Safari can throttle ScrollTrigger/touch callbacks during native momentum.
-  // The scroll position itself remains the source of truth, so while the hero is
-  // active we sample it once per animation frame. This also gives Android one
-  // predictable progress update per frame instead of event-frequency bursts.
+  // Safari may throttle ScrollTrigger/touch callbacks during native momentum.
+  // The physical document position remains the source of truth, so while the
+  // story is active we sample it once per animation frame. Reduced Motion does
+  // NOT stop this loop; only the explicit static control does.
   function trackingTick() {
     trackingRaf = 0;
     if (destroyed || !trigger || isStaticMode()) return;
@@ -123,6 +131,8 @@ export function createMachiningScroll(stage, onProgress, onMode) {
   }
 
   function createSequence() {
+    if (trigger || destroyed || isStaticMode()) return;
+
     trigger = ScrollTrigger.create({
       id: "machining-experience",
       trigger: stage,
@@ -145,13 +155,11 @@ export function createMachiningScroll(stage, onProgress, onMode) {
         emitProgress(0, "leave-back");
       },
       onUpdate() {
-        // Do not render here. Event rates differ across Chrome/Safari. Instead,
-        // wake the single RAF sampler which derives progress from window.scrollY.
+        // Never render directly from ScrollTrigger. Event rates differ between
+        // desktop Chrome, Android Chrome and iOS Safari. Wake one RAF sampler.
         ensureTracking("scrolltrigger", 520);
       },
       onRefresh(self) {
-        // Never force-scroll during a normal refresh. Safari's address bar and
-        // font/layout updates can otherwise fight native momentum scrolling.
         const next = normalizedScrollProgress(window.scrollY, self.start, self.end);
         emitProgress(next, "refresh");
         ensureTracking("refresh", 300);
@@ -162,21 +170,29 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     ensureTracking("initial-sync", 600);
   }
 
+  function notifyMode() {
+    const mode = motionMode();
+    onMode(mode === MotionMode.STATIC, reducedQuery.matches, mode);
+    publishDebug();
+  }
+
   function applyMode({ keepScroll = false } = {}) {
     if (destroyed) return;
-    const isStatic = isStaticMode();
+    const mode = motionMode();
     const stageTop = stage.getBoundingClientRect().top + window.scrollY;
 
-    killSequence();
-    onMode(isStatic, reducedQuery.matches);
+    notifyMode();
 
-    if (isStatic) {
-      emitProgress(0, "static");
+    if (mode === MotionMode.STATIC) {
+      killSequence();
+      emitProgress(0, "static-explicit");
       ScrollTrigger.refresh();
       if (!keepScroll) window.scrollTo({ top: stageTop, behavior: "auto" });
       return;
     }
 
+    // FULL and REDUCED both preserve the exact same mechanical timeline.
+    // Reduced mode only changes decorative presentation in MachiningExperience.
     createSequence();
     ScrollTrigger.refresh();
 
@@ -185,16 +201,13 @@ export function createMachiningScroll(stage, onProgress, onMode) {
       emitProgress(0, "mode-reset");
     } else {
       ensureTracking("mode-sync", 700);
+      emitProgress(progressFromDocument(), "mode-sync");
     }
   }
 
   function structuralRefresh() {
     structuralRaf = 0;
     if (destroyed || !trigger || isStaticMode()) return;
-
-    // Orientation/real width changes are rare and safe to refresh. Preserve the
-    // current physical scroll position instead of writing window.scrollTo(), so
-    // an iOS gesture can never be cancelled by our own refresh logic.
     ScrollTrigger.refresh();
     emitProgress(progressFromDocument(), "structural-refresh");
     ensureTracking("structural-refresh", 800);
@@ -213,8 +226,8 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     const widthChanged = Math.abs(width - lastWidth) > 24;
     const orientationChanged = orientation !== lastOrientation;
 
-    // Browser chrome and the software keyboard mostly change height. Treating
-    // those as structural resizes causes refresh storms and dropped frames.
+    // Ignore Safari/Chrome browser-chrome height changes. They are not a
+    // structural resize and must not interrupt a native touch gesture.
     if (!widthChanged && !orientationChanged) return;
     lastWidth = width;
     lastOrientation = orientation;
@@ -222,11 +235,15 @@ export function createMachiningScroll(stage, onProgress, onMode) {
   }
 
   const onReducedChange = () => {
-    // A new OS preference should become the default again; the user can still
-    // explicitly opt into the animated experience via the on-page control.
-    staticOverride = null;
-    applyMode({ keepScroll: true });
+    // Reduced Motion now changes presentation only. The ScrollTrigger/pin and
+    // the user's scroll-controlled mechanical sequence stay alive.
+    notifyMode();
+    if (!isStaticMode()) {
+      createSequence();
+      ensureTracking("reduced-motion-change", 700);
+    }
   };
+
   reducedQuery.addEventListener?.("change", onReducedChange);
   window.addEventListener("orientationchange", scheduleStructuralRefresh, { passive: true });
   window.addEventListener("resize", onViewportResize, { passive: true });
@@ -240,8 +257,6 @@ export function createMachiningScroll(stage, onProgress, onMode) {
   const onTouchMove = () => ensureTracking("touchmove", 1200);
   const onTouchEnd = () => {
     touchActive = false;
-    // Keep sampling long enough to follow iOS/Android momentum after the finger
-    // leaves the glass.
     ensureTracking("touchend", 1600);
   };
 
@@ -259,12 +274,14 @@ export function createMachiningScroll(stage, onProgress, onMode) {
   return {
     setStatic(value) {
       if (destroyed) return;
-      staticOverride = Boolean(value);
+      staticExplicit = Boolean(value);
       applyMode({ keepScroll: false });
     },
     followSystemMotionPreference() {
+      // Backward-compatible API: return to the interactive experience while
+      // still honoring Reduced Motion as a reduced presentation mode.
       if (destroyed) return;
-      staticOverride = null;
+      staticExplicit = false;
       applyMode({ keepScroll: true });
     },
     refresh() {
@@ -279,6 +296,12 @@ export function createMachiningScroll(stage, onProgress, onMode) {
     },
     get staticMode() {
       return isStaticMode();
+    },
+    get reducedMotion() {
+      return reducedQuery.matches;
+    },
+    get motionMode() {
+      return motionMode();
     },
     dispose() {
       destroyed = true;

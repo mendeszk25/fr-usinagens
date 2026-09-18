@@ -1306,3 +1306,91 @@
     top: 58%;
   }
 }
+
+/* --------------------------------------------------------------------------
+   iOS Safari motion-mode correction
+   Reduced Motion keeps the user-controlled mechanical story alive. Only the
+   explicit "Vista estática" action disables the pinned 3D sequence.
+   -------------------------------------------------------------------------- */
+.is-reduced-motion .step-control,
+.is-reduced-motion .scroll-hint,
+.is-reduced-motion .model-caption {
+  transition-duration: 0.01ms;
+}
+
+@media (max-width: 759px) and (orientation: portrait) {
+  /* Keep the stable Safari viewport and remove the old minimum height that
+     pushed lower annotations into each other on short iPhone viewports. */
+  .experience-stage {
+    height: 100svh;
+    min-height: 0;
+  }
+
+  /* Narrative occupies its own upper text zone. */
+  .narrative {
+    top: calc(var(--safe-top) + 84px);
+    bottom: auto;
+    min-height: 0;
+  }
+  .narrative > p:last-child {
+    position: static;
+    margin: 14px 0 0;
+    max-width: min(82vw, 330px);
+  }
+
+  /* Technical annotation gets a separate lower zone above the controls. */
+  .technical-annotation {
+    top: auto;
+    bottom: calc(var(--safe-bottom) + 126px);
+    width: min(84vw, 340px);
+    right: auto;
+    padding-top: 0;
+  }
+  .technical-annotation h3 {
+    margin: 7px 0;
+  }
+  .technical-annotation > p:last-child {
+    max-width: min(80vw, 320px);
+  }
+
+  /* The assembly caption is useful at the start, but should not compete with
+     chapter/part copy once scrubbing begins. */
+  .model-caption {
+    bottom: calc(var(--safe-bottom) + 126px);
+  }
+  .experience-stage.has-started .model-caption {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .experience-bottom {
+    bottom: max(10px, calc(var(--safe-bottom) + 6px));
+  }
+  .motion-toggle {
+    top: -45px;
+  }
+}
+
+@media (max-width: 759px) and (max-height: 700px) and (orientation: portrait) {
+  .narrative {
+    top: calc(var(--safe-top) + 72px);
+  }
+  .narrative h2 {
+    font-size: clamp(27px, 8vw, 32px);
+  }
+  .narrative > p:last-child {
+    margin-top: 10px;
+    max-width: min(80vw, 305px);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .technical-annotation {
+    bottom: calc(var(--safe-bottom) + 112px);
+  }
+  .technical-annotation > p:last-child {
+    display: none;
+  }
+  .part-material {
+    margin-bottom: 0;
+  }
+}

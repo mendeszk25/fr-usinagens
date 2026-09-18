@@ -76,12 +76,15 @@ test("responsive layout preserves one pin and mobile navigation", async ({ page 
   await expect(page.locator(".menu-toggle")).toHaveAttribute("aria-expanded", "false");
 });
 
-test("reduced motion keeps content accessible without a pinned sequence", async ({ page }) => {
+test("reduced motion keeps the user-controlled 3D sequence pinned and available", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator(".experience")).toHaveClass(/is-static/);
-  await expect(page.locator(".pin-spacer")).toHaveCount(0);
-  await expect(page.locator("#motion-toggle")).toBeDisabled();
+  await expect(page.locator(".experience")).not.toHaveClass(/is-static/);
+  await expect(page.locator(".experience")).toHaveClass(/is-reduced-motion/);
+  await expect(page.locator(".experience-stage")).toHaveAttribute("data-motion-mode", "reduced");
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+  await expect(page.locator("#motion-toggle")).toBeEnabled();
+  await expect(page.locator("#motion-toggle")).toHaveText(/Vista estática/);
   await expect(page.locator(".capability-card")).toHaveCount(6);
   await expect(page.locator(".work-item")).toHaveCount(6);
   await noOverflow(page);

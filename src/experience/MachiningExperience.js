@@ -23,6 +23,8 @@ export function mountMachiningExperience(section) {
   let scroll;
   let progress = 0;
   let staticMode = false;
+  let reducedMotion = false;
+  let motionMode = "full";
   let disposed = false;
   let frame = 0;
   let currentChapter = -1;
@@ -37,10 +39,12 @@ export function mountMachiningExperience(section) {
     const anchor = canvas?.render(progress, part?.id);
     if (canvas && devMode) host.dataset.renderProgress = progress.toFixed(4);
     annotation.update(part, anchor, progress);
-    host.style.opacity = String(staticMode ? 1 : 1 - range(progress, 0.95, 1) * 0.8);
-    stage.style.setProperty("--opening", String(range(progress, 0.18, 0.32)));
+    host.style.opacity = String(staticMode || reducedMotion ? 1 : 1 - range(progress, 0.95, 1) * 0.8);
+    stage.style.setProperty("--opening", String(reducedMotion ? 0 : range(progress, 0.18, 0.32)));
 
-    const intro = 1 - range(progress, 0.12, 0.23);
+    // Reduced Motion keeps the user-controlled mechanical scrub intact, but
+    // removes the long decorative cross-fades/camera-opening treatment.
+    const intro = reducedMotion ? (progress < 0.18 ? 1 : 0) : 1 - range(progress, 0.12, 0.23);
     hero.style.opacity = staticMode ? "0" : String(intro);
     const nextHeroInteractive = !(staticMode || intro < 0.1);
     if (nextHeroInteractive !== heroInteractive) {
@@ -52,7 +56,7 @@ export function mountMachiningExperience(section) {
     }
 
     stage.classList.toggle("has-started", !staticMode && progress > 0.035);
-    narrative.style.opacity = staticMode ? "1" : String(range(progress, 0.17, 0.24));
+    narrative.style.opacity = staticMode ? "1" : reducedMotion ? String(progress >= 0.18 ? 1 : 0) : String(range(progress, 0.17, 0.24));
     chapterDescription.style.opacity = part ? "0" : "1";
     bar.style.transform = `scaleX(${staticMode ? 1 : progress})`;
 
@@ -122,8 +126,8 @@ export function mountMachiningExperience(section) {
   observer.observe(host);
 
   function onToggle() {
-    // If iOS has Reduce Motion enabled, static is still the respectful default,
-    // but the user can explicitly opt into the mechanical scroll experience.
+    // Static is now an explicit user choice. The OS Reduced Motion preference
+    // reduces decorative motion without disabling the core scroll mechanics.
     scroll?.setStatic(!staticMode);
   }
   toggle.addEventListener("click", onToggle);
@@ -137,16 +141,24 @@ export function mountMachiningExperience(section) {
       progress = value;
       requestDraw();
     },
-    (value, reduced) => {
+    (value, reduced, mode) => {
       staticMode = value;
+      reducedMotion = Boolean(reduced && !value);
+      motionMode = mode || (value ? "static" : reducedMotion ? "reduced" : "full");
       section.classList.toggle("is-static", value);
+      section.classList.toggle("is-reduced-motion", reducedMotion);
+      stage.dataset.motionMode = motionMode;
       toggle.setAttribute("aria-pressed", String(value));
       toggle.disabled = false;
-      toggle.textContent = value
-        ? reduced
-          ? "Movimento reduzido · ativar 3D ↗"
-          : "Ativar experiência ao rolar ↗"
-        : "Vista estática ↗";
+      toggle.textContent = value ? "Retomar experiência 3D ↗" : "Vista estática ↗";
+      toggle.setAttribute(
+        "aria-label",
+        value
+          ? "Retomar experiência 3D controlada pela rolagem"
+          : reducedMotion
+            ? "Ativar vista estática. O movimento reduzido do sistema está sendo respeitado sem desativar a desmontagem 3D."
+            : "Ativar vista estática",
+      );
       requestDraw();
     },
   );

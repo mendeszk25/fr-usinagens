@@ -150,3 +150,12 @@ test("viewport classification can reuse a preallocated object in the render hot 
   assert.equal(out.name, "mobile-portrait");
   assert.equal(out.width, 412);
 });
+
+import { MotionMode, resolveMotionMode } from "../src/experience/motionMode.js";
+
+test("Reduced Motion is not treated as explicit static mode", () => {
+  assert.equal(resolveMotionMode({ reducedMotion: false, staticExplicit: false }), MotionMode.FULL);
+  assert.equal(resolveMotionMode({ reducedMotion: true, staticExplicit: false }), MotionMode.REDUCED);
+  assert.equal(resolveMotionMode({ reducedMotion: false, staticExplicit: true }), MotionMode.STATIC);
+  assert.equal(resolveMotionMode({ reducedMotion: true, staticExplicit: true }), MotionMode.STATIC);
+});
