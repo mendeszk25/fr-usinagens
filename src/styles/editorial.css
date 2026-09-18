@@ -1436,3 +1436,298 @@
 @media (prefers-reduced-motion: reduce) {
   .repair-comparison .compare-handle { transition: none !important; }
 }
+
+/* QUOTE / NEXT STEP — workshop editorial redesign ------------------------ */
+.quote-section--workshop {
+  row-gap: 70px;
+  padding-top: 104px;
+  padding-bottom: 118px;
+  overflow: hidden;
+}
+
+.quote-section--workshop .result-heading {
+  grid-column: 1 / 6;
+  align-self: start;
+  padding-top: 40px;
+}
+
+.quote-section--workshop .result-heading .technical-kicker {
+  margin-bottom: 30px;
+}
+
+.quote-section--workshop .result-heading h2 {
+  margin: 0;
+  max-width: 610px;
+  font-size: clamp(54px, 5.25vw, 82px);
+  line-height: 0.96;
+  letter-spacing: -1.2px;
+}
+
+.quote-section--workshop .result-heading > p:not(.eyebrow) {
+  margin-top: 34px;
+  max-width: 470px;
+  color: #a9b2b8;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.quote-process {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 25px;
+  margin-top: 48px;
+  max-width: 710px;
+}
+
+.quote-process article {
+  position: relative;
+  min-width: 0;
+  padding-top: 19px;
+  border-top: 1px solid rgba(195, 200, 203, 0.19);
+}
+
+.quote-process__number {
+  display: block;
+  margin-bottom: 14px;
+  font: 400 34px/1 var(--headline);
+  color: #aab6bd;
+}
+
+.quote-process h3 {
+  margin: 0 0 9px;
+  font: 500 15px/1.12 var(--headline);
+  letter-spacing: 1.25px;
+  color: #eef0f1;
+}
+
+.quote-process p {
+  color: #8f9aa1;
+  font-size: 11px;
+  line-height: 1.62;
+}
+
+.quote-workshop-visual {
+  grid-column: 6 / -1;
+  min-width: 0;
+  align-self: stretch;
+  position: relative;
+}
+
+.quote-workshop-frame {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  background: #07090a;
+  isolation: isolate;
+}
+
+.quote-workshop-frame::before,
+.quote-workshop-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.quote-workshop-frame::before {
+  background:
+    linear-gradient(90deg, rgba(7, 9, 10, 0.34), transparent 23%, transparent 75%, rgba(7, 9, 10, 0.28)),
+    linear-gradient(0deg, rgba(7, 9, 10, 0.5), transparent 30%);
+}
+
+.quote-workshop-frame::after {
+  inset: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quote-workshop-main {
+  position: absolute;
+  inset: 0 24% 0 0;
+  width: 76%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 48% 48%;
+  filter: saturate(0.74) contrast(1.09) brightness(0.72);
+  transform: scale(1.01);
+}
+
+.quote-workshop-detail {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 31%;
+  overflow: hidden;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 2;
+}
+
+.quote-workshop-detail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(7, 9, 10, 0.24), rgba(7, 9, 10, 0.05));
+}
+
+.quote-workshop-detail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 52% 56%;
+  filter: saturate(0.68) contrast(1.08) brightness(0.64);
+  transform: scale(1.05);
+}
+
+.quote-blueprint {
+  position: absolute;
+  right: 23.5%;
+  bottom: 32px;
+  width: 230px;
+  height: auto;
+  color: rgba(192, 205, 213, 0.22);
+  z-index: 5;
+}
+
+.quote-blueprint text {
+  fill: currentColor;
+  stroke: none;
+  font: 500 8px/1 "Barlow", Arial, sans-serif;
+  letter-spacing: 1.4px;
+}
+
+.quote-workshop-stamp {
+  position: absolute;
+  left: 28px;
+  bottom: 28px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: rgba(220, 225, 228, 0.72);
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+
+.quote-workshop-stamp i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.quote-workshop-visual figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 14px;
+  color: #7f8a90;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+
+.quote-workshop-visual figcaption span {
+  color: #667178;
+  text-align: right;
+}
+
+/* Keep the static final-assembly renderer mounted for project compatibility,
+   while the new workshop photography is the visible art direction. */
+.quote-hidden-result {
+  position: absolute !important;
+  right: 8px;
+  bottom: 8px;
+  width: 3px !important;
+  height: 3px !important;
+  opacity: 0.01;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.quote-hidden-result canvas {
+  width: 3px !important;
+  height: 3px !important;
+}
+
+.quote-section--workshop .quote-intro,
+.quote-section--workshop form {
+  margin-top: 6px;
+}
+
+@media (max-width: 1180px) {
+  .quote-section--workshop .result-heading { grid-column: 1 / 6; }
+  .quote-workshop-visual { grid-column: 6 / -1; }
+  .quote-workshop-frame { min-height: 500px; }
+  .quote-process { grid-template-columns: 1fr; gap: 0; max-width: 420px; }
+  .quote-process article { padding: 15px 0 17px; display: grid; grid-template-columns: 54px 1fr; column-gap: 12px; }
+  .quote-process__number { grid-row: 1 / span 2; margin: 0; font-size: 29px; }
+  .quote-process h3 { margin-top: 1px; }
+  .quote-process p { grid-column: 2; }
+  .quote-blueprint { width: 190px; }
+}
+
+@media (max-width: 759px) {
+  .quote-section--workshop {
+    row-gap: 42px;
+    padding-top: 72px;
+    padding-bottom: 80px;
+  }
+  .quote-section--workshop .result-heading,
+  .quote-workshop-visual,
+  .quote-section--workshop .quote-intro,
+  .quote-section--workshop form { grid-column: 1 / -1; }
+
+  .quote-section--workshop .result-heading { padding-top: 0; }
+  .quote-section--workshop .result-heading .technical-kicker { margin-bottom: 23px; }
+  .quote-section--workshop .result-heading h2 {
+    font-size: clamp(43px, 12.4vw, 55px);
+    line-height: 0.97;
+    letter-spacing: -0.6px;
+  }
+  .quote-section--workshop .result-heading > p:not(.eyebrow) {
+    margin-top: 24px;
+    max-width: 390px;
+    font-size: 14px;
+    line-height: 1.68;
+  }
+  .quote-process {
+    grid-template-columns: 1fr;
+    margin-top: 34px;
+    max-width: 100%;
+  }
+  .quote-process article {
+    grid-template-columns: 48px 1fr;
+    padding: 15px 0 18px;
+  }
+  .quote-process__number { font-size: 27px; }
+  .quote-process h3 { font-size: 14px; }
+  .quote-process p { max-width: 300px; }
+
+  .quote-workshop-visual {
+    margin-inline: calc(-1 * var(--pad));
+    width: auto;
+  }
+  .quote-workshop-frame { min-height: 440px; }
+  .quote-workshop-main { inset: 0 0 0 0; width: 100%; object-position: 53% 50%; }
+  .quote-workshop-detail {
+    width: 31%;
+    height: 42%;
+    top: auto;
+    right: 18px;
+    bottom: 18px;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .quote-blueprint { right: 18px; top: 22px; bottom: auto; width: 135px; }
+  .quote-workshop-stamp { left: 22px; bottom: 22px; max-width: 54%; flex-wrap: wrap; }
+  .quote-workshop-visual figcaption { padding: 12px var(--pad) 0; }
+  .quote-workshop-visual figcaption span { display: none; }
+}
+
+@media (max-width: 430px) {
+  .quote-workshop-frame { min-height: 390px; }
+  .quote-workshop-detail { width: 34%; height: 40%; }
+  .quote-blueprint { width: 116px; opacity: 0.85; }
+  .quote-workshop-stamp { font-size: 7px; letter-spacing: 1.2px; }
+}
