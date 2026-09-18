@@ -1,0 +1,1308 @@
+.experience {
+  position: relative;
+  background: #080a0b;
+}
+.experience-stage {
+  position: relative;
+  height: 100svh;
+  min-height: 700px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(8, 10, 11, 0.9) 0%, rgba(8, 10, 11, 0.86) 16%, rgba(8, 10, 11, 0.52) 34%, rgba(8, 10, 11, 0.16) 58%, rgba(8, 10, 11, 0.38) 100%),
+    radial-gradient(circle at 70% 42%, rgba(202, 212, 219, 0.12) 0%, rgba(42, 51, 58, 0.08) 14%, rgba(8, 10, 11, 0) 36%),
+    url("/images/hero-industrial-background.webp");
+  background-color: #080a0b;
+  background-size: cover, auto, cover;
+  background-position: center, 70% 42%, center;
+  background-repeat: no-repeat;
+}
+.experience-stage:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 10, 11, 0.08) 0%, rgba(8, 10, 11, 0.02) 18%, rgba(8, 10, 11, 0.14) 56%, rgba(8, 10, 11, 0.66) 100%),
+    radial-gradient(circle at 65% 46%, rgba(204, 214, 220, 0.035) 0%, rgba(8, 10, 11, 0) 34%);
+}
+.studio-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  background-size: 140px 140px;
+  opacity: 0.1;
+}
+.studio-grid:after {
+  content: "";
+  position: absolute;
+  left: 28%;
+  right: 4%;
+  top: 68%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 72%);
+  filter: blur(12px);
+  opacity: 0.52;
+}
+.canvas-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.canvas-host canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero-copy {
+  position: absolute;
+  top: clamp(118px, 24vh, 250px);
+  left: var(--pad);
+  width: min(42vw, 620px);
+  z-index: 4;
+  padding: 14px 0 18px;
+}
+.hero-copy > .eyebrow {
+  margin-bottom: 24px;
+}
+.hero-copy h1 {
+  font: 500 clamp(52px, 6vw, 94px) / 0.97 var(--headline);
+  letter-spacing: -1.1px;
+  white-space: nowrap;
+  max-width: 6ch;
+}
+.hero-copy h1 span {
+  color: #c3c8cb;
+}
+.hero-description {
+  max-width: 360px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #a7b0b6;
+  margin-top: 26px;
+}
+.hero-copy .button {
+  margin-top: 0;
+}
+.hero-actions {
+  margin-top: 31px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.hero-link {
+  font-size: 9px;
+  letter-spacing: 1.15px;
+  color: #a8b1b7;
+  border-bottom: 1px solid #465158;
+  padding: 10px 0 7px;
+}
+.hero-caption {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 20px;
+}
+.model-caption {
+  position: absolute;
+  right: var(--pad);
+  top: 136px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #a4aeb5;
+  z-index: 4;
+  pointer-events: none;
+}
+.model-caption small {
+  display: block;
+  margin-top: 6px;
+  font-size: 9px;
+  color: #969fa5;
+  letter-spacing: 1.1px;
+}
+.crosshair {
+  font-size: 17px;
+  color: #858d92;
+}
+.model-index {
+  display: none;
+}
+.narrative {
+  position: absolute;
+  top: 13%;
+  right: var(--pad);
+  left: auto;
+  max-width: min(34vw, 500px);
+  z-index: 4;
+  text-align: right;
+  opacity: 0;
+  pointer-events: none;
+}
+.narrative .eyebrow {
+  margin-bottom: 20px;
+}
+.narrative h2 {
+  font-size: clamp(32px, 3.15vw, 50px);
+  white-space: pre-line;
+  line-height: 1.07;
+  font-weight: 500;
+}
+.narrative > p:last-child {
+  max-width: 310px;
+  margin-left: auto;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #a8b1b7;
+  margin-top: 20px;
+}
+.experience-bottom {
+  position: absolute;
+  bottom: 28px;
+  left: var(--pad);
+  right: var(--pad);
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  z-index: 6;
+}
+.scroll-hint {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 1.7px;
+}
+.scroll-hint > span:first-child {
+  font-size: 24px;
+  color: #b4c1ca;
+}
+.scroll-hint small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0;
+  margin-top: 6px;
+  color: #969fa5;
+}
+.step-control {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 11px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.experience-stage.has-started .step-control {
+  opacity: 1;
+  transform: translateY(0);
+}
+.experience-stage.has-started .scroll-hint {
+  opacity: 0.28;
+}
+.scroll-hint {
+  transition: opacity 0.3s ease;
+}
+.step-control > span:first-child {
+  font-size: 20px;
+  font-weight: 400;
+}
+.step-divider {
+  color: #969fa5;
+}
+.progress-track {
+  height: 1px;
+  width: 110px;
+  background: #39434a;
+  margin: 0 12px;
+}
+.progress-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #c3c8cb;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+#step-label {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  min-width: 120px;
+}
+.motion-toggle {
+  padding: 12px 0;
+  font-size: 11px;
+  background: transparent;
+  color: #a4aeb5;
+}
+.motion-toggle:hover {
+  color: #f1f2f2;
+}
+.motion-toggle span {
+  margin-left: 8px;
+}
+.technical-annotation {
+  position: absolute;
+  bottom: 18%;
+  left: var(--pad);
+  width: min(320px, 28vw);
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+}
+.technical-annotation .eyebrow {
+  font-size: 10px;
+  color: #969fa5;
+  letter-spacing: 1.5px;
+}
+.technical-annotation h3 {
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 10px 0;
+  text-transform: uppercase;
+}
+.part-material {
+  font-size: 12px;
+  color: #bdc9d1;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.technical-annotation > p:last-child {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #969fa5;
+  max-width: 300px;
+}
+.annotation-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+.annotation-lines path {
+  fill: none;
+  stroke: #c3c8cb;
+  stroke-opacity: 0.42;
+  stroke-width: 1;
+  opacity: 0;
+}
+.annotation-lines circle {
+  fill: #c3c8cb;
+  opacity: 0;
+}
+.scene-loading {
+  position: absolute;
+  left: 72%;
+  top: 65%;
+  z-index: 4;
+  font-size: 11px;
+  color: #969fa5;
+  letter-spacing: 1px;
+}
+.scene-loading span {
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: #c3c8cb;
+  margin-top: 12px;
+}
+.is-static .narrative {
+  top: 125px;
+}
+.scene-fallback {
+  position: absolute;
+  right: 8%;
+  top: 38%;
+  width: 38%;
+  z-index: 4;
+  color: #a4aeb5;
+}
+.scene-fallback > p {
+  font: 400 30px/1.2 var(--headline);
+  margin: 24px 0;
+}
+.scene-fallback > a {
+  font-size: 14px;
+  border-bottom: 1px solid #858d92;
+  padding-bottom: 8px;
+}
+.fallback-diagram {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 130px;
+  margin: 24px 0;
+}
+.fallback-diagram:before {
+  content: "";
+  height: 12px;
+  width: 100%;
+  position: absolute;
+  top: 60px;
+  background: #8d9aa3;
+}
+.fallback-diagram i {
+  height: 100px;
+  width: 20px;
+  border: 1px solid #b3bec6;
+  background: #181d20;
+  z-index: 1;
+}
+.fallback-diagram i:nth-child(2n) {
+  height: 65px;
+  width: 12px;
+}
+.fallback-diagram i:nth-child(4) {
+  width: 65px;
+  height: 85px;
+}
+.is-fallback .model-caption,
+.is-fallback .step-control {
+  display: none;
+}
+
+@media (min-width: 1400px) {
+  .hero-copy {
+    width: min(39vw, 660px);
+  }
+  .hero-description {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hero-copy {
+    top: 24%;
+    width: min(46vw, 480px);
+  }
+  .hero-copy h1 {
+    font-size: 68px;
+  }
+  .hero-description {
+    max-width: 290px;
+    font-size: 15px;
+  }
+  .hero-copy .button {
+    font-size: 10px;
+    gap: 16px;
+  }
+  .progress-track {
+    width: 65px;
+    margin: 0 5px;
+  }
+  .technical-annotation {
+    width: 275px;
+  }
+  .technical-annotation > p:last-child {
+    font-size: 12px;
+  }
+}
+@media (max-width: 759px) {
+  .experience-stage {
+    min-height: 700px;
+    background:
+      linear-gradient(180deg, rgba(8, 10, 11, 0.78) 0%, rgba(8, 10, 11, 0.9) 16%, rgba(8, 10, 11, 0.26) 50%, rgba(8, 10, 11, 0.8) 100%),
+      radial-gradient(circle at 50% 40%, rgba(46, 56, 63, 0.22) 0%, rgba(15, 19, 22, 0.08) 32%, rgba(8, 10, 11, 0) 54%),
+      url("/images/hero-industrial-background.webp");
+    background-color: #080a0b;
+    background-size: cover, auto, cover;
+    background-position: center, 50% 40%, center;
+    background-repeat: no-repeat;
+  }
+  .experience-stage:before {
+    background:
+      linear-gradient(180deg, rgba(8, 10, 11, 0.08) 0%, rgba(8, 10, 11, 0.03) 18%, rgba(8, 10, 11, 0.18) 70%, rgba(8, 10, 11, 0.74) 100%),
+      radial-gradient(circle at 50% 47%, rgba(203, 212, 217, 0.028) 0%, rgba(8, 10, 11, 0) 32%);
+  }
+  .hero-copy {
+    top: 112px;
+    width: auto;
+    right: var(--pad);
+    left: var(--pad);
+    padding-right: clamp(12px, 12vw, 72px);
+  }
+  .model-caption {
+    top: auto;
+    bottom: 124px;
+    right: var(--pad);
+    left: var(--pad);
+    justify-content: space-between;
+  }
+  .narrative {
+    top: auto;
+    right: var(--pad);
+    left: var(--pad);
+    bottom: 205px;
+    max-width: none;
+    text-align: left;
+  }
+  .narrative > p:last-child {
+    margin-left: 0;
+  }
+  .technical-annotation {
+    width: auto;
+    right: var(--pad);
+    bottom: 148px;
+  }
+  .hero-copy > .eyebrow {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  .hero-copy h1 {
+    font-size: 53px;
+    line-height: 0.98;
+    letter-spacing: -0.5px;
+  }
+  .hero-description {
+    font-size: 14px;
+    max-width: 310px;
+    margin-top: 18px;
+    line-height: 1.6;
+  }
+  .hero-actions {
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .hero-copy .button {
+    min-height: 46px;
+    padding: 13px 16px;
+    font-size: 10px;
+  }
+  .hero-link {
+    display: none;
+  }
+  .hero-caption {
+    display: none;
+  }
+  .canvas-host {
+    top: 30%;
+    height: 59%;
+    bottom: 11%;
+  }
+  .studio-grid:after {
+    left: 15%;
+    right: 10%;
+    top: 68%;
+    height: 7%;
+  }
+  .model-caption {
+    top: auto;
+    bottom: 113px;
+    left: var(--pad);
+    right: auto;
+    font-size: 8px;
+    letter-spacing: 1.2px;
+    gap: 8px;
+  }
+  .model-caption small {
+    font-size: 8px;
+  }
+  .crosshair {
+    font-size: 16px;
+  }
+  .narrative {
+    top: 40px;
+    left: var(--pad);
+    right: var(--pad);
+  }
+  .narrative .eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.7px;
+    margin-bottom: 15px;
+  }
+  .narrative h2 {
+    font-size: 35px;
+    line-height: 1.02;
+  }
+  .narrative > p:last-child {
+    position: absolute;
+    top: calc(100svh * 0.51);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 310px;
+    margin: 0;
+  }
+  .technical-annotation {
+    left: var(--pad);
+    right: var(--pad);
+    top: 57%;
+    bottom: auto;
+    width: auto;
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+    max-width: none;
+  }
+  .technical-annotation h3 {
+    font-size: 24px;
+    margin: 9px 0;
+  }
+  .technical-annotation .eyebrow {
+    font-size: 10px;
+  }
+  .part-material {
+    font-size: 13px;
+    margin-bottom: 9px;
+  }
+  .technical-annotation > p:last-child {
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 340px;
+  }
+  .annotation-lines {
+    display: none;
+  }
+  .experience-bottom {
+    bottom: 20px;
+    padding-top: 17px;
+    gap: 12px;
+    align-items: center;
+  }
+  .scroll-hint {
+    font-size: 8px;
+    letter-spacing: 1px;
+    gap: 9px;
+  }
+  .scroll-hint small {
+    display: none;
+  }
+  .scroll-hint > span:first-child {
+    font-size: 21px;
+  }
+  .step-control {
+    gap: 7px;
+    font-size: 10px;
+  }
+  .step-control > span:first-child {
+    font-size: 18px;
+  }
+  .progress-track {
+    width: 40px;
+    margin: 0 3px;
+  }
+  #step-label {
+    font-size: 8px;
+    letter-spacing: 0.4px;
+    min-width: 0;
+    width: 76px;
+  }
+  .motion-toggle {
+    position: absolute;
+    right: 0;
+    top: -37px;
+    font-size: 10px;
+  }
+  .scene-loading {
+    left: 28%;
+    top: 62%;
+    font-size: 10px;
+  }
+  .is-static .narrative {
+    top: 110px;
+  }
+  .is-static .canvas-host {
+    top: 27%;
+    height: 61%;
+  }
+  .is-static .narrative > p:last-child {
+    top: calc(100svh * 0.49);
+  }
+  .is-fallback .scene-fallback {
+    left: var(--pad);
+    right: var(--pad);
+    top: 58%;
+    width: auto;
+  }
+  .is-fallback .scene-fallback > .eyebrow,
+  .is-fallback .scene-fallback > p {
+    display: none;
+  }
+  .fallback-diagram {
+    height: 90px;
+    margin: 0 0 16px;
+  }
+  .fallback-diagram i {
+    height: 75px;
+  }
+  .fallback-diagram:before {
+    top: 40px;
+  }
+  .is-fallback .scene-fallback > a {
+    font-size: 12px;
+  }
+}
+@media (max-width: 759px) and (max-height: 740px) {
+  .experience-stage {
+    min-height: 640px;
+  }
+  .hero-copy {
+    top: 98px;
+  }
+  .hero-copy h1 {
+    font-size: 44px;
+  }
+  .hero-copy > .eyebrow {
+    margin-bottom: 12px;
+  }
+  .hero-description {
+    font-size: 13px;
+    margin-top: 13px;
+    max-width: 300px;
+  }
+  .hero-actions {
+    margin-top: 15px;
+  }
+  .hero-copy .button {
+    min-height: 42px;
+  }
+  .canvas-host {
+    top: 33%;
+    height: 54%;
+  }
+  .narrative {
+    top: 27px;
+  }
+  .narrative h2 {
+    font-size: 31px;
+  }
+  .technical-annotation {
+    top: 55%;
+    padding-top: 15px;
+  }
+  .technical-annotation h3 {
+    font-size: 22px;
+  }
+  .technical-annotation > p:last-child {
+    font-size: 13px;
+  }
+  .technical-annotation .eyebrow {
+    font-size: 9px;
+  }
+  .part-material {
+    margin-bottom: 7px;
+  }
+  .model-caption {
+    bottom: 98px;
+  }
+  .is-static .narrative {
+    top: 98px;
+  }
+  .is-static .narrative > p:last-child {
+    top: calc(100svh * 0.48);
+  }
+}
+@media (min-width: 760px) and (max-height: 740px) {
+  .experience-stage {
+    min-height: 600px;
+  }
+  .hero-copy {
+    top: 26%;
+  }
+  .hero-copy h1 {
+    font-size: 68px;
+  }
+  .hero-description {
+    margin-top: 18px;
+    font-size: 14px;
+  }
+  .hero-copy .button {
+    margin-top: 22px;
+  }
+  .hero-caption {
+    margin-top: 16px;
+  }
+  .narrative {
+    top: 7%;
+  }
+  .narrative h2 {
+    font-size: 35px;
+  }
+  .narrative > p:last-child {
+    font-size: 13px;
+  }
+  .technical-annotation {
+    bottom: 16%;
+    width: 290px;
+  }
+  .technical-annotation h3 {
+    font-size: 20px;
+  }
+  .technical-annotation > p:last-child {
+    font-size: 12px;
+  }
+  .model-caption {
+    top: 113px;
+  }
+  .is-static .narrative {
+    top: 112px;
+  }
+}
+
+/* Low-power/WebGL fallback: a compact technical silhouette of the lathe rather
+   than the generic stacked-component diagram used by the previous prototype. */
+.scene-fallback .fallback-diagram {
+  display: block;
+  height: 138px;
+  margin: 22px 0 26px;
+}
+.scene-fallback .fallback-diagram:before {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 27px;
+  width: auto;
+  height: 12px;
+  background: #7f8b92;
+  border: 1px solid #a8b4bb;
+}
+.scene-fallback .fallback-diagram i {
+  position: absolute;
+  display: block;
+  margin: 0;
+  background: #171d20;
+  border: 1px solid #a8b4bb;
+}
+.scene-fallback .fallback-diagram i:nth-child(1) {
+  left: 2%;
+  bottom: 38px;
+  width: 22%;
+  height: 72px;
+}
+.scene-fallback .fallback-diagram i:nth-child(2) {
+  left: 22%;
+  bottom: 53px;
+  width: 12%;
+  height: 48px;
+  border-radius: 50%;
+}
+.scene-fallback .fallback-diagram i:nth-child(3) {
+  left: 43%;
+  bottom: 38px;
+  width: 21%;
+  height: 34px;
+}
+.scene-fallback .fallback-diagram i:nth-child(4) {
+  left: 49%;
+  bottom: 72px;
+  width: 10%;
+  height: 39px;
+}
+.scene-fallback .fallback-diagram i:nth-child(5) {
+  left: 71%;
+  bottom: 38px;
+  width: 19%;
+  height: 58px;
+}
+.scene-fallback .fallback-diagram i:nth-child(6) {
+  left: 63%;
+  bottom: 72px;
+  width: 11%;
+  height: 12px;
+}
+.scene-fallback .fallback-diagram i:nth-child(7) {
+  left: 88%;
+  bottom: 68px;
+  width: 12%;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* --------------------------------------------------------------------------
+   UNIVERSAL HORIZONTAL LATHE — second-pass art direction
+   The 3D object is intentionally allowed to dominate the hero. Camera framing
+   does most of the work; these rules protect editorial copy and labels without
+   reducing the model back to a small right-hand illustration.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1101px) {
+  .hero-copy {
+    top: 27%;
+    width: min(34%, 500px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(58px, 5.5vw, 86px);
+  }
+  .hero-description {
+    max-width: 350px;
+  }
+  .model-caption {
+    top: 118px;
+    right: calc(var(--pad) * 0.9);
+  }
+  .narrative {
+    top: 8.5%;
+    max-width: 590px;
+  }
+  .narrative > p:last-child {
+    max-width: 390px;
+  }
+  .technical-annotation {
+    bottom: 15.5%;
+    width: 340px;
+  }
+  .technical-annotation > p:last-child {
+    max-width: 340px;
+  }
+  .studio-grid {
+    background:
+      radial-gradient(ellipse at 72% 47%, #1b232155, transparent 53%),
+      radial-gradient(ellipse at 58% 62%, #10151355, transparent 38%);
+  }
+  .studio-grid:after {
+    left: 36%;
+    right: 1%;
+    top: 72%;
+    height: 11%;
+    filter: blur(29px);
+  }
+}
+
+@media (min-width: 760px) and (max-width: 1100px) {
+  .hero-copy {
+    top: 27%;
+    width: 37%;
+  }
+  .hero-copy h1 {
+    font-size: clamp(50px, 5.7vw, 64px);
+  }
+  .technical-annotation {
+    width: 300px;
+    bottom: 15%;
+  }
+  .model-caption {
+    top: 112px;
+  }
+}
+
+@media (max-width: 759px) {
+  .canvas-host {
+    top: 27%;
+    height: 63%;
+    bottom: 10%;
+  }
+  .hero-copy {
+    top: 102px;
+  }
+  .hero-copy h1 {
+    font-size: clamp(45px, 13.5vw, 56px);
+    max-width: 350px;
+  }
+  .narrative > p:last-child {
+    top: calc(100svh * 0.53);
+    max-width: 350px;
+  }
+  .technical-annotation {
+    top: 58%;
+  }
+  .technical-annotation > p:last-child {
+    max-width: 360px;
+  }
+  .model-caption {
+    bottom: 106px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   CROSS-DEVICE 3D RESPONSIVENESS
+   The pinned stage uses the stable mobile viewport so Safari/Chrome browser
+   chrome does not change the mechanical timeline while the user is scrubbing.
+   -------------------------------------------------------------------------- */
+.experience-stage {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 620px;
+}
+.canvas-host,
+.canvas-host canvas {
+  max-width: 100%;
+}
+.canvas-host {
+  touch-action: pan-y;
+}
+.experience-bottom {
+  left: max(var(--pad), calc(var(--safe-left) + 18px));
+  right: max(var(--pad), calc(var(--safe-right) + 18px));
+  bottom: max(22px, calc(var(--safe-bottom) + 12px));
+}
+.is-context-lost .canvas-host {
+  opacity: 0.16 !important;
+}
+.is-context-lost .scene-fallback {
+  display: block;
+}
+
+@media (max-width: 759px) and (orientation: portrait) {
+  .experience-stage {
+    height: 100vh;
+    height: 100svh;
+    min-height: 0;
+  }
+  .hero-copy {
+    top: calc(var(--safe-top) + 92px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    width: auto;
+    padding: 0 clamp(0px, 5vw, 22px) 0 0;
+  }
+  .hero-copy > .eyebrow {
+    margin-bottom: clamp(10px, 2.3svh, 16px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(42px, 13.2vw, 55px);
+    line-height: 0.96;
+    max-width: 6ch;
+  }
+  .hero-description {
+    max-width: min(82vw, 330px);
+    font-size: clamp(13px, 3.7vw, 15px);
+    line-height: 1.55;
+    margin-top: clamp(12px, 2.4svh, 18px);
+  }
+  .hero-actions {
+    margin-top: clamp(14px, 2.8svh, 20px);
+  }
+  .hero-copy .button {
+    min-height: 44px;
+    padding-block: 12px;
+  }
+  .canvas-host {
+    top: 28%;
+    height: 61%;
+    bottom: auto;
+  }
+  .narrative {
+    top: calc(var(--safe-top) + 88px);
+    bottom: calc(var(--safe-bottom) + 94px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    max-width: none;
+    text-align: left;
+  }
+  .narrative h2 {
+    font-size: clamp(31px, 9.6vw, 39px);
+    line-height: 1;
+  }
+  .narrative > p:last-child {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    max-width: min(86vw, 360px);
+    margin: 0;
+    font-size: clamp(14px, 3.7vw, 16px);
+    line-height: 1.55;
+  }
+  .technical-annotation {
+    top: auto;
+    bottom: calc(var(--safe-bottom) + 92px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    width: auto;
+    padding-top: 16px;
+  }
+  .technical-annotation h3 {
+    font-size: clamp(20px, 6.2vw, 25px);
+  }
+  .technical-annotation > p:last-child {
+    font-size: clamp(13px, 3.5vw, 15px);
+    line-height: 1.5;
+    max-width: 360px;
+  }
+  .model-caption {
+    top: auto;
+    bottom: calc(var(--safe-bottom) + 98px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: auto;
+    max-width: calc(100vw - 40px - var(--safe-left) - var(--safe-right));
+    transition: opacity 0.25s ease;
+  }
+  .has-started .model-caption {
+    opacity: 0.18;
+  }
+  .experience-bottom {
+    bottom: max(12px, calc(var(--safe-bottom) + 8px));
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: max(20px, calc(var(--safe-right) + 18px));
+    padding-top: 13px;
+  }
+  .step-control {
+    margin-left: auto;
+  }
+  .motion-toggle {
+    top: -40px;
+    min-height: 44px;
+    padding-block: 10px;
+  }
+  .scene-loading {
+    left: 50%;
+    top: 64%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 80vw;
+    text-align: center;
+  }
+  .scene-loading span {
+    margin-inline: auto;
+  }
+  .is-static .canvas-host {
+    top: 28%;
+    height: 61%;
+  }
+  .is-static .narrative {
+    top: calc(var(--safe-top) + 90px);
+  }
+  .is-static .narrative > p:last-child {
+    top: auto;
+    bottom: 0;
+  }
+}
+
+@media (max-width: 379px) and (orientation: portrait) {
+  .hero-copy {
+    top: calc(var(--safe-top) + 84px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(40px, 12.5vw, 47px);
+  }
+  .hero-description {
+    max-width: 292px;
+  }
+  .canvas-host {
+    top: 30%;
+    height: 58%;
+  }
+  .scroll-hint {
+    max-width: 86px;
+  }
+  #step-label {
+    display: none;
+  }
+  .progress-track {
+    width: 34px;
+  }
+}
+
+@media (max-width: 759px) and (max-height: 700px) and (orientation: portrait) {
+  .hero-copy {
+    top: calc(var(--safe-top) + 82px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(39px, 12vw, 46px);
+  }
+  .hero-copy > .eyebrow {
+    margin-bottom: 9px;
+  }
+  .hero-description {
+    font-size: 13px;
+    line-height: 1.48;
+    margin-top: 10px;
+    max-width: 300px;
+  }
+  .hero-actions {
+    margin-top: 12px;
+  }
+  .hero-copy .button {
+    min-height: 42px;
+  }
+  .canvas-host {
+    top: 31%;
+    height: 57%;
+  }
+  .narrative {
+    top: calc(var(--safe-top) + 76px);
+    bottom: calc(var(--safe-bottom) + 82px);
+  }
+  .narrative h2 {
+    font-size: clamp(29px, 8.5vw, 34px);
+  }
+  .narrative > p:last-child {
+    font-size: 13px;
+    max-width: 315px;
+  }
+  .technical-annotation {
+    bottom: calc(var(--safe-bottom) + 80px);
+    padding-top: 12px;
+  }
+  .technical-annotation .eyebrow {
+    font-size: 8px;
+  }
+  .technical-annotation h3 {
+    font-size: 20px;
+    margin: 7px 0;
+  }
+  .part-material,
+  .technical-annotation > p:last-child {
+    font-size: 12px;
+  }
+  .model-caption {
+    bottom: calc(var(--safe-bottom) + 84px);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1023px) and (orientation: portrait) {
+  .experience-stage {
+    height: 100svh;
+    min-height: 0;
+  }
+  .hero-copy {
+    top: calc(var(--safe-top) + 18%);
+    width: min(48vw, 430px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(54px, 8vw, 72px);
+  }
+  .hero-description {
+    max-width: 330px;
+  }
+  .model-caption {
+    top: calc(var(--safe-top) + 102px);
+  }
+  .experience-bottom {
+    bottom: max(18px, calc(var(--safe-bottom) + 12px));
+  }
+}
+
+@media (max-width: 1100px) and (orientation: landscape) and (max-height: 650px) {
+  .experience-stage {
+    height: 100svh;
+    min-height: 0;
+  }
+  .canvas-host {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .hero-copy {
+    top: calc(var(--safe-top) + 62px);
+    left: max(20px, calc(var(--safe-left) + 18px));
+    right: auto;
+    width: min(40vw, 390px);
+    padding: 0;
+  }
+  .hero-copy > .eyebrow {
+    margin-bottom: 8px;
+    font-size: 9px;
+  }
+  .hero-copy h1 {
+    font-size: clamp(32px, 6.3vw, 48px);
+    line-height: 0.96;
+  }
+  .hero-description {
+    font-size: 12px;
+    line-height: 1.45;
+    margin-top: 10px;
+    max-width: 300px;
+  }
+  .hero-actions {
+    margin-top: 11px;
+  }
+  .hero-copy .button {
+    min-height: 42px;
+    padding: 10px 14px;
+  }
+  .hero-caption,
+  .hero-link {
+    display: none;
+  }
+  .model-caption {
+    top: calc(var(--safe-top) + 58px);
+    bottom: auto;
+    right: max(18px, calc(var(--safe-right) + 16px));
+    left: auto;
+    max-width: 32vw;
+    font-size: 7px;
+  }
+  .model-caption small {
+    font-size: 7px;
+  }
+  .narrative {
+    top: calc(var(--safe-top) + 54px);
+    bottom: calc(var(--safe-bottom) + 66px);
+    left: 56%;
+    right: max(18px, calc(var(--safe-right) + 16px));
+    text-align: right;
+    max-width: none;
+  }
+  .narrative h2 {
+    font-size: clamp(27px, 5.5vw, 38px);
+  }
+  .narrative > p:last-child {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    margin-left: auto;
+    font-size: 12px;
+    line-height: 1.45;
+    max-width: 300px;
+  }
+  .technical-annotation {
+    top: auto;
+    bottom: calc(var(--safe-bottom) + 65px);
+    left: max(18px, calc(var(--safe-left) + 16px));
+    right: auto;
+    width: min(42vw, 340px);
+    padding-top: 10px;
+  }
+  .technical-annotation .eyebrow {
+    font-size: 8px;
+  }
+  .technical-annotation h3 {
+    font-size: clamp(18px, 3.5vw, 23px);
+    margin: 6px 0;
+  }
+  .part-material,
+  .technical-annotation > p:last-child {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .annotation-lines {
+    display: none;
+  }
+  .experience-bottom {
+    left: max(18px, calc(var(--safe-left) + 16px));
+    right: max(18px, calc(var(--safe-right) + 16px));
+    bottom: max(7px, calc(var(--safe-bottom) + 5px));
+    padding-top: 8px;
+  }
+  .scroll-hint {
+    font-size: 7px;
+  }
+  .scroll-hint > span:first-child {
+    font-size: 18px;
+  }
+  .scroll-hint small,
+  #step-label {
+    display: none;
+  }
+  .step-control {
+    gap: 5px;
+  }
+  .step-control > span:first-child {
+    font-size: 16px;
+  }
+  .motion-toggle {
+    top: -38px;
+    min-height: 38px;
+    font-size: 9px;
+  }
+  .scene-loading {
+    left: 70%;
+    top: 58%;
+  }
+}
