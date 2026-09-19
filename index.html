@@ -373,23 +373,23 @@
             <span class="technical-rule" aria-hidden="true"></span>
           </div>
           <h2>VAMOS ENTENDER<br />A SUA <span>NECESSIDADE.</span></h2>
-          <p>Preencha o essencial. Ao enviar, o site abre uma conversa no WhatsApp da FR com as informações organizadas — nada é enviado para um servidor intermediário.</p>
+          <p>Envie o que você já sabe. Não precisa conhecer o nome técnico da peça: foto, medida ou uma descrição já ajudam a iniciar a análise.</p>
 
-          <div class="quote-process" aria-label="Como começa um orçamento na FR Usinagens">
+          <div class="quote-process" aria-label="Como começa uma solicitação na FR Usinagens">
             <article>
               <span class="quote-process__number">01</span>
-              <h3>ENVIAR REFERÊNCIA</h3>
-              <p>Desenho, imagem, amostra ou uma descrição clara da peça.</p>
+              <h3>ENVIE A NECESSIDADE</h3>
+              <p>Descreva o problema e, se tiver, anexe fotos ou desenho.</p>
             </article>
             <article>
               <span class="quote-process__number">02</span>
-              <h3>ANÁLISE TÉCNICA</h3>
-              <p>A FR avalia material, medidas, aplicação e processo possível.</p>
+              <h3>ANÁLISE</h3>
+              <p>A FR confere as informações disponíveis antes de orientar o próximo passo.</p>
             </article>
             <article>
               <span class="quote-process__number">03</span>
-              <h3>RETORNO NO WHATSAPP</h3>
-              <p>A conversa continua de forma direta, com a necessidade já organizada.</p>
+              <h3>CONTATO DIRETO</h3>
+              <p>Depois do registro, a conversa pode continuar no WhatsApp com o código da solicitação.</p>
             </article>
           </div>
         </div>
@@ -404,33 +404,145 @@
               <p class="result-alternative">TORNO MECÂNICO HORIZONTAL UNIVERSAL / VISTA MONTADA.</p>
             </div>
           </div>
-          <figcaption>REGISTRO REAL DE OFICINA <span>PROCESSO COMERCIAL TÉCNICO / FR USINAGENS</span></figcaption>
+          <figcaption>REGISTRO REAL DE OFICINA <span>SOLICITAÇÃO TÉCNICA / FR USINAGENS</span></figcaption>
         </figure>
 
         <div class="quote-intro">
-          <p class="eyebrow">ORÇAMENTO VIA WHATSAPP</p>
-          <h3>Quanto melhor a informação,<br />melhor começa a conversa.</h3>
-          <p>Se possível, descreva a peça, a aplicação e o problema. Fotos, medidas e desenhos podem ser enviados depois diretamente na conversa.</p>
+          <p class="eyebrow">SOLICITAÇÃO DE ANÁLISE</p>
+          <h3>Você informa o que sabe.<br />A FR continua a conversa.</h3>
+          <p>Os campos técnicos são opcionais. Se você só tiver uma foto e uma explicação do problema, pode enviar assim mesmo.</p>
+          <div class="quote-security-note">
+            <span aria-hidden="true">↳</span>
+            <p>Quando o backend estiver configurado, a solicitação recebe um código privado de acompanhamento. Sem backend disponível, o site informa isso e usa apenas o WhatsApp — sem fingir que salvou dados.</p>
+          </div>
         </div>
-        <form id="quote-form">
-          <label for="name">Seu nome<input id="name" name="name" autocomplete="name" placeholder="Como podemos chamar você?" required maxlength="100" /></label>
-          <label for="company">Empresa <span>(opcional)</span><input id="company" name="company" autocomplete="organization" placeholder="Empresa ou oficina" maxlength="140" /></label>
-          <label for="phone">Telefone <span>(opcional)</span><input id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="(81) 9 0000-0000" maxlength="30" /></label>
-          <label for="service">O que você precisa?<select id="service" name="service" required>
-            <option value="Torneamento">Torneamento</option>
-            <option value="Peças sob medida">Peças sob medida</option>
-            <option value="Rosqueamento">Rosqueamento</option>
-            <option value="Reparo e recuperação">Reparo e recuperação</option>
-            <option value="Componentes e engrenagens">Componentes e engrenagens</option>
-            <option value="Adaptação mecânica">Adaptação mecânica</option>
-            <option value="Outro serviço">Outro serviço</option>
-          </select></label>
-          <label class="field-full" for="message">Detalhes da necessidade<textarea id="message" name="message" rows="4" placeholder="Explique a peça, o problema, a aplicação ou o que precisa ser fabricado/recuperado" required maxlength="3000"></textarea></label>
-          <label class="field-full" for="deadline">Prazo <span>(opcional)</span><input id="deadline" name="deadline" placeholder="Existe uma data ou urgência específica?" maxlength="160" /></label>
-          <button class="button button-whatsapp" type="submit">SOLICITAR ORÇAMENTO PELO WHATSAPP <span aria-hidden="true">↗</span></button>
-          <p class="form-note">Ao continuar, uma nova aba abrirá o WhatsApp com a mensagem pronta para você revisar e enviar diretamente à FR Usinagens.</p>
-          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-        </form>
+
+        <div class="quote-system" data-quote-system>
+          <form id="quote-form" enctype="multipart/form-data" novalidate>
+            <div class="quote-form__header field-full">
+              <span class="quote-step">SOLICITAÇÃO / 01</span>
+              <strong>Informações principais</strong>
+            </div>
+
+            <label for="name">Seu nome
+              <input id="name" name="name" autocomplete="name" placeholder="Como podemos chamar você?" required maxlength="100" />
+            </label>
+            <label for="phone">WhatsApp / telefone
+              <input id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="(81) 9 0000-0000" required maxlength="30" />
+            </label>
+            <label for="company">Empresa <span>(opcional)</span>
+              <input id="company" name="company" autocomplete="organization" placeholder="Empresa ou oficina" maxlength="140" />
+            </label>
+            <label for="service">O que você precisa?
+              <select id="service" name="service" required>
+                <option value="Fabricar uma peça">Fabricar uma peça</option>
+                <option value="Recuperar uma peça">Recuperar uma peça</option>
+                <option value="Ajustar ou modificar uma peça">Ajustar ou modificar uma peça</option>
+                <option value="Avaliar uma peça">Tenho uma peça e preciso de avaliação</option>
+                <option value="Outro serviço">Outro / não sei informar</option>
+              </select>
+            </label>
+            <label for="quantity">Quantidade <span>(opcional)</span>
+              <input id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="10000" placeholder="Ex.: 2" />
+            </label>
+            <label for="material">Material <span>(se souber)</span>
+              <select id="material" name="material">
+                <option value="Não sei informar">Não sei informar</option>
+                <option value="Aço">Aço</option>
+                <option value="Alumínio">Alumínio</option>
+                <option value="Inox">Inox</option>
+                <option value="Bronze">Bronze</option>
+                <option value="Ferro">Ferro</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </label>
+
+            <fieldset class="field-full quote-dimensions">
+              <legend>Medidas <span>(opcional)</span></legend>
+              <div class="quote-dimensions__grid">
+                <label for="length">Comprimento<input id="length" name="length" inputmode="decimal" maxlength="40" placeholder="Ex.: 120 mm" /></label>
+                <label for="diameter">Diâmetro<input id="diameter" name="diameter" inputmode="decimal" maxlength="40" placeholder="Ex.: Ø 35 mm" /></label>
+                <label for="width">Outra medida<input id="width" name="width" inputmode="decimal" maxlength="40" placeholder="Ex.: 18 mm" /></label>
+              </div>
+              <label class="quote-check" for="unknown-dimensions">
+                <input id="unknown-dimensions" name="unknown_dimensions" type="checkbox" value="1" />
+                <span>Não sei informar as medidas.</span>
+              </label>
+            </fieldset>
+
+            <label class="field-full" for="message">Explique a necessidade
+              <textarea id="message" name="message" rows="5" placeholder="Ex.: tenho uma peça quebrada e preciso saber se dá para recuperar ou fazer outra parecida" required minlength="10" maxlength="3000"></textarea>
+            </label>
+            <label class="field-full" for="urgency">Urgência
+              <select id="urgency" name="urgency">
+                <option value="Normal">Normal</option>
+                <option value="Tenho urgência">Tenho urgência</option>
+                <option value="Sem prazo definido">Não tenho prazo definido</option>
+              </select>
+            </label>
+
+            <div class="field-full quote-upload" data-upload-zone>
+              <div class="quote-upload__copy">
+                <span class="quote-step">SOLICITAÇÃO / 02</span>
+                <strong>Fotos ou desenho <small>(opcional)</small></strong>
+                <p>JPG, PNG, WEBP ou PDF. Até 4 arquivos; 8 MB por arquivo e 20 MB no total.</p>
+              </div>
+              <label class="quote-upload__target" for="quote-files">
+                <input id="quote-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple />
+                <span aria-hidden="true">＋</span>
+                <strong>ESCOLHER ARQUIVOS</strong>
+                <small>ou arraste para esta área</small>
+              </label>
+              <ul class="quote-upload__list" id="quote-file-list" aria-live="polite"></ul>
+            </div>
+
+            <div class="field-full quote-summary" id="quote-summary" aria-live="polite">
+              <div class="quote-summary__head"><span class="quote-step">SOLICITAÇÃO / 03</span><strong>Resumo</strong></div>
+              <dl>
+                <div><dt>Tipo</dt><dd data-summary="service">—</dd></div>
+                <div><dt>Quantidade</dt><dd data-summary="quantity">Não informada</dd></div>
+                <div><dt>Material</dt><dd data-summary="material">Não sei informar</dd></div>
+                <div><dt>Medidas</dt><dd data-summary="dimensions">Não informadas</dd></div>
+                <div><dt>Arquivos</dt><dd data-summary="files">Nenhum</dd></div>
+                <div><dt>Urgência</dt><dd data-summary="urgency">Normal</dd></div>
+              </dl>
+            </div>
+
+            <button class="button button-whatsapp field-full" id="quote-submit" type="submit">
+              <span class="button-label">REGISTRAR E CONTINUAR NO WHATSAPP</span><span aria-hidden="true">↗</span>
+            </button>
+            <p class="form-note">Se o registro online estiver disponível, sua solicitação será salva antes de abrir o WhatsApp. Se não estiver, o site avisará claramente e abrirá somente a mensagem. Use os campos apenas para informações necessárias ao orçamento e evite anexar documentos pessoais.</p>
+            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+
+            <div class="quote-success field-full" id="quote-success" hidden>
+              <span class="quote-success__eyebrow">SOLICITAÇÃO REGISTRADA</span>
+              <strong id="quote-success-code">—</strong>
+              <p>Guarde este código. Neste navegador, a chave privada de acompanhamento fica salva automaticamente.</p>
+              <div><button type="button" class="button button-outline" id="copy-quote-code">COPIAR CÓDIGO</button><a class="button button-primary" href="#acompanhar">ACOMPANHAR SOLICITAÇÃO</a></div>
+            </div>
+          </form>
+        </div>
+
+        <aside id="acompanhar" class="quote-tracking" data-reveal>
+          <div class="quote-tracking__intro">
+            <p class="eyebrow">08 / ACOMPANHAMENTO</p>
+            <h3>CONSULTE O STATUS<br /><span>DA SOLICITAÇÃO.</span></h3>
+            <p>Para proteger os dados, a consulta usa o código e uma chave privada salva no navegador que registrou o pedido.</p>
+          </div>
+          <form id="tracking-form" class="quote-tracking__form">
+            <label for="tracking-code">Código da solicitação
+              <input id="tracking-code" name="code" autocomplete="off" placeholder="Ex.: FR-A1B2C3" maxlength="20" required />
+            </label>
+            <button class="button button-outline" type="submit">CONSULTAR <span aria-hidden="true">↗</span></button>
+          </form>
+          <div class="tracking-result" id="tracking-result" hidden aria-live="polite">
+            <div><span>CÓDIGO</span><strong data-track="code">—</strong></div>
+            <div><span>STATUS</span><strong data-track="status">—</strong></div>
+            <div><span>ATUALIZADO</span><strong data-track="updated">—</strong></div>
+            <p data-track="note"></p>
+          </div>
+          <p class="form-status" id="tracking-status" role="status" aria-live="polite"></p>
+        </aside>
       </section>
     </main>
 

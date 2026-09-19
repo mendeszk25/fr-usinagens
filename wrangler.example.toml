@@ -1,0 +1,15 @@
+# Exemplo para Cloudflare Pages Functions.
+# Copie para wrangler.toml e preencha os IDs do seu projeto antes do deploy.
+name = "fr-usinagens"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-09-18"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fr-usinagens"
+database_id = "COLOQUE_O_DATABASE_ID_AQUI"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "QUOTE_FILES"
+bucket_name = "fr-usinagens-quote-files"

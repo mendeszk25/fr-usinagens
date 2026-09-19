@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#080a0b" />
+    <title>FR Usinagens · Painel</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/admin.js"></script>
+  </head>
+  <body class="admin-body">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a href="/" class="admin-brand"><strong>FR</strong><span>USINAGENS<small>PAINEL DE SOLICITAÇÕES</small></span></a>
+        <button type="button" class="admin-link" id="admin-logout" hidden>SAIR</button>
+      </header>
+
+      <section class="admin-login" id="admin-login">
+        <p class="admin-eyebrow">ACESSO RESTRITO</p>
+        <h1>PAINEL<br /><span>ADMINISTRATIVO.</span></h1>
+        <p>A senha não fica embutida no frontend. O acesso é validado pelo backend e a sessão é armazenada em cookie HttpOnly.</p>
+        <form id="admin-login-form">
+          <label for="admin-password">Senha administrativa<input id="admin-password" type="password" autocomplete="current-password" required /></label>
+          <button type="submit" class="admin-button">ENTRAR <span>↗</span></button>
+        </form>
+        <p class="admin-status" id="admin-login-status" role="status"></p>
+      </section>
+
+      <section class="admin-dashboard" id="admin-dashboard" hidden>
+        <div class="admin-dashboard__head">
+          <div><p class="admin-eyebrow">SOLICITAÇÕES</p><h1>ENTRADAS<br /><span>DA OFICINA.</span></h1></div>
+          <div class="admin-filters">
+            <input id="admin-search" type="search" placeholder="Código, nome ou telefone" />
+            <select id="admin-status-filter"><option value="">Todos os status</option></select>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Código</th><th>Cliente</th><th>Necessidade</th><th>Status</th><th>Entrada</th></tr></thead>
+            <tbody id="admin-list"></tbody>
+          </table>
+        </div>
+        <div class="admin-pagination"><button id="admin-prev" type="button">← ANTERIOR</button><span id="admin-page">—</span><button id="admin-next" type="button">PRÓXIMA →</button></div>
+        <p class="admin-status" id="admin-list-status" role="status"></p>
+      </section>
+    </main>
+
+    <dialog class="admin-dialog" id="admin-dialog">
+      <form method="dialog" class="admin-dialog__top"><span>DETALHES DA SOLICITAÇÃO</span><button aria-label="Fechar">×</button></form>
+      <div id="admin-detail"></div>
+    </dialog>
+  </body>
+</html>

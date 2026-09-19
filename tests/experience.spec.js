@@ -121,13 +121,14 @@ test("constrained hardware keeps the 3D story at a lower quality tier and quote 
   await expect(page.locator(".pin-spacer")).toHaveCount(1);
   await page.locator("#name").fill("Teste de projeto");
   await page.locator("#company").fill("Oficina teste");
-  await page.locator("#service").selectOption("Reparo e recuperação");
+  await page.locator("#phone").fill("(81) 99999-9999");
+  await page.locator("#service").selectOption("Recuperar uma peça");
   await page.locator("#message").fill("Preciso avaliar a recuperação de um eixo.");
   await page.locator("#quote-form button").click();
   const opened = await page.evaluate(() => window.__openedUrl);
   expect(opened).toContain("https://wa.me/5581973091369");
-  expect(decodeURIComponent(opened)).toContain("Reparo e recuperação");
-  await expect(page.locator("#form-status")).toContainText("WhatsApp aberto");
+  expect(decodeURIComponent(opened)).toContain("Recuperar uma peça");
+  await expect(page.locator("#form-status")).toContainText("Nenhum dado foi salvo");
   await noOverflow(page);
 });
 
@@ -141,9 +142,14 @@ test("real workshop imagery loads locally and service links preselect quote type
       (img) => img.complete && img.naturalWidth > 0,
     ),
   );
-  for (const service of ["Torneamento", "Rosqueamento", "Adaptação mecânica"]) {
+  const mappedServices = {
+    "Torneamento": "Fabricar uma peça",
+    "Rosqueamento": "Fabricar uma peça",
+    "Adaptação mecânica": "Ajustar ou modificar uma peça",
+  };
+  for (const [service, expected] of Object.entries(mappedServices)) {
     await page.locator(`[data-service="${service}"]`).click();
-    await expect(page.locator("#service")).toHaveValue(service);
+    await expect(page.locator("#service")).toHaveValue(expected);
   }
   await expect(page.locator(".quality-visual img")).toHaveAttribute("src", /real\/gears\.webp/);
   await noOverflow(page);
