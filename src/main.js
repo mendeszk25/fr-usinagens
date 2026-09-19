@@ -1,15 +1,20 @@
-import { mountFinalAssembly } from "./experience/FinalAssembly.js";
 import { mountMachiningExperience } from "./experience/MachiningExperience.js";
 import { mountEngineeringStory } from "./experience/EngineeringStory.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { setupQuoteForm } from "./ui/quoteForm.js";
 import { setupDynamicContent } from "./ui/dynamicContent.js";
 import { setupViewportEnvironment } from "./ui/viewport.js";
+import { setupMobileQuickAction } from "./ui/mobileAction.js";
+import { setupAnalytics } from "./ui/analytics.js";
+import { applySiteConfig } from "./ui/siteConfig.js";
 
 const disposeViewport = setupViewportEnvironment();
+applySiteConfig();
 setupNavigation();
 setupQuoteForm();
 setupDynamicContent();
+const disposeMobileQuickAction = setupMobileQuickAction();
+const disposeAnalytics = setupAnalytics();
 
 document.querySelector("#year").textContent = new Date().getFullYear();
 
@@ -101,11 +106,9 @@ let disposeComparisons = setupBeforeAfterComparisons();
 function mountScenes() {
   const primary = mountMachiningExperience(document.querySelector("#experiencia"));
   const engineering = mountEngineeringStory(document);
-  const result = mountFinalAssembly(document.querySelector("#result-canvas"));
   return () => {
     primary();
     engineering();
-    result();
   };
 }
 
@@ -128,4 +131,6 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
   disposeScenes?.();
   disposeViewport?.();
   disposeComparisons?.();
+  disposeMobileQuickAction?.();
+  disposeAnalytics?.();
 });

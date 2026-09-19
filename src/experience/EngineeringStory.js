@@ -28,7 +28,7 @@ export function mountEngineeringStory(root = document) {
 
   if (componentHost) {
     const id = componentHost.dataset.modelId || "threadedPin";
-    componentHost.setAttribute("aria-label", `Estudo tridimensional ilustrativo: ${modelMeta(id).displayName.toLowerCase()}`);
+    componentHost.setAttribute("aria-label", `Visualização tridimensional: ${modelMeta(id).displayName.toLowerCase()}`);
   }
   if (processHost) {
     const id = processHost.dataset.modelId || "gearShaft";
@@ -36,7 +36,7 @@ export function mountEngineeringStory(root = document) {
   }
   if (precisionHost) {
     const id = precisionHost.dataset.modelId || "industrialAssembly";
-    precisionHost.setAttribute("aria-label", `Estudo tridimensional ilustrativo para leitura técnica: ${modelMeta(id).displayName.toLowerCase()}`);
+    precisionHost.setAttribute("aria-label", `Visualização tridimensional para leitura técnica: ${modelMeta(id).displayName.toLowerCase()}`);
   }
 
   const stateFor = (host) => {
@@ -88,6 +88,11 @@ export function mountEngineeringStory(root = document) {
     return rect.bottom > -innerHeight * 0.15 && rect.top < innerHeight * 1.15;
   }
 
+  function hostFarFromViewport(host) {
+    const rect = host.getBoundingClientRect();
+    return rect.bottom < -innerHeight * 1.6 || rect.top > innerHeight * 2.6;
+  }
+
   function renderHost(host, canvas) {
     if (!canvas || !hostNearViewport(host)) return;
     const mode = host.dataset.engineering3d || "components";
@@ -108,6 +113,12 @@ export function mountEngineeringStory(root = document) {
     if (disposed || document.hidden) return;
     hosts.forEach((host) => {
       const canvas = canvases.get(host);
+      if (canvas && innerWidth < 760 && hostFarFromViewport(host)) {
+        canvas.dispose();
+        canvases.delete(host);
+        host.classList.remove("is-webgl-unavailable");
+        return;
+      }
       if (canvas) renderHost(host, canvas);
       else if (hostNearViewport(host)) ensureCanvas(host).then(requestDraw);
     });

@@ -16,5 +16,5 @@ export async function onRequest(context) {
   if (!row) return fail("not_found", "Imagem não encontrada.", 404);
   const object = await env.SITE_MEDIA.get(row.storage_key);
   if (!object) return fail("not_found", "Imagem não encontrada.", 404);
-  return new Response(object.body, { headers: { "content-type": row.mime_type || object.httpMetadata?.contentType || "application/octet-stream", "cache-control": "public, max-age=3600", "x-content-type-options": "nosniff" } });
+  return new Response(object.body, { headers: { "content-type": row.mime_type || object.httpMetadata?.contentType || "application/octet-stream", "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff" } });
 }

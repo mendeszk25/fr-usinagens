@@ -6,7 +6,7 @@ import { rateLimit } from "../../_lib/rateLimit.js";
 export async function onRequest(context) {
   if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
   const { request, env, params } = context;
-  if (!env.DB) return fail("backend_not_configured", "O acompanhamento ainda não está configurado.", 503);
+  if (!env.DB) return fail("service_unavailable", "O acompanhamento está temporariamente indisponível.", 503);
 
   const limited = await rateLimit(env, request, "tracking", 30, 15 * 60);
   if (!limited.allowed) return fail("rate_limited", "Muitas consultas. Tente novamente em alguns minutos.", 429);

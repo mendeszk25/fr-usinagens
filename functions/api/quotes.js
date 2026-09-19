@@ -2,6 +2,7 @@ import { ok, fail, methodNotAllowed } from "../_lib/http.js";
 import { randomToken, sha256 } from "../_lib/crypto.js";
 import { rateLimit } from "../_lib/rateLimit.js";
 import { extensionFor, fileSignatureMatches, safeFilename, validateFiles, validateQuoteFields } from "../_lib/validation.js";
+import { notifyNewQuote } from "../_lib/notify.js";
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -30,7 +31,7 @@ export async function onRequest(context) {
   if (context.request.method !== "POST") return methodNotAllowed(["POST"]);
   const { request, env } = context;
 
-  if (!env.DB) return fail("backend_not_configured", "O banco de dados do orçamento ainda não está configurado.", 503);
+  if (!env.DB) return fail("service_unavailable", "O serviço de solicitação está temporariamente indisponível.", 503);
 
   const limited = await rateLimit(env, request, "quote", 8, 60 * 60);
   if (!limited.allowed) {
@@ -58,7 +59,7 @@ export async function onRequest(context) {
   const fileError = validateFiles(files);
   if (fileError) return fail("invalid_files", fileError, 400);
   if (files.length && !env.QUOTE_FILES) {
-    return fail("storage_not_configured", "O armazenamento de arquivos ainda não está configurado neste ambiente.", 503);
+    return fail("storage_unavailable", "O envio de arquivos está temporariamente indisponível. Tente sem anexos ou continue pelo WhatsApp.", 503);
   }
 
   const id = crypto.randomUUID();
@@ -129,6 +130,19 @@ export async function onRequest(context) {
     }
     console.error("quote_create_failed", { message: error?.message, publicCode });
     return fail("quote_create_failed", "Não foi possível registrar a solicitação agora. Tente novamente.", 500);
+  }
+
+  try {
+    await notifyNewQuote(env, {
+      public_code: publicCode,
+      customer_name: validated.data.customer_name,
+      phone: validated.data.phone,
+      city: validated.data.city,
+      request_type: validated.data.request_type,
+      file_count: uploaded.length,
+    });
+  } catch (error) {
+    console.error("quote_notification_failed", { message: error?.message, publicCode });
   }
 
   return ok({

@@ -1,4 +1,7 @@
-const WHATSAPP_NUMBER = "5581973091369";
+import { trackEvent } from "./analytics.js";
+import { SITE_CONFIG } from "../config/site.js";
+
+const WHATSAPP_NUMBER = SITE_CONFIG.whatsappDigits;
 const MAX_FILES = 4;
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const MAX_TOTAL_SIZE = 20 * 1024 * 1024;
@@ -21,6 +24,24 @@ function getStoredTokens() { try { return JSON.parse(localStorage.getItem(TOKEN_
 function saveTrackingToken(code, token) {
   if (!code || !token) return;
   try { const tokens = getStoredTokens(); tokens[code.toUpperCase()] = token; localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokens)); } catch { /* storage may be blocked */ }
+}
+
+function buildTrackingLink(code, token) {
+  const safeCode = clean(code).toUpperCase();
+  const safeToken = clean(token);
+  if (!safeCode || !safeToken) return "";
+  const base = `${location.origin}${location.pathname}`;
+  return `${base}#acompanhar?code=${encodeURIComponent(safeCode)}&token=${encodeURIComponent(safeToken)}`;
+}
+
+function readTrackingLinkFromHash() {
+  const hash = String(location.hash || "");
+  if (!hash.startsWith("#acompanhar?")) return null;
+  const params = new URLSearchParams(hash.slice("#acompanhar?".length));
+  const code = clean(params.get("code")).toUpperCase();
+  const token = clean(params.get("token"));
+  if (!/^FR-[A-Z0-9]{6}$/.test(code) || token.length < 20) return null;
+  return { code, token };
 }
 
 function buildDimensions(data) {
@@ -92,6 +113,7 @@ function setupDraft(form, getStep, setStep) {
 
 function setupFiles(form, updateSummary) {
   const input = form.querySelector("#quote-files");
+  const cameraInput = form.querySelector("#quote-camera");
   const zone = form.querySelector("[data-upload-zone]");
   const list = form.querySelector("#quote-file-list");
   let selectedFiles = [];
@@ -99,35 +121,97 @@ function setupFiles(form, updateSummary) {
 
   const syncInput = () => {
     if (typeof DataTransfer === "undefined") return;
-    const transfer = new DataTransfer(); selectedFiles.forEach((file) => transfer.items.add(file)); input.files = transfer.files;
+    const transfer = new DataTransfer();
+    selectedFiles.forEach((file) => transfer.items.add(file));
+    input.files = transfer.files;
   };
+
   const render = () => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url)); previewUrls = []; list.replaceChildren();
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    previewUrls = [];
+    list.replaceChildren();
     selectedFiles.forEach((file, index) => {
       const item = document.createElement("li");
-      if (file.type.startsWith("image/")) { const img = document.createElement("img"); const url = URL.createObjectURL(file); previewUrls.push(url); img.src = url; img.alt = ""; item.append(img); }
-      else { const icon = document.createElement("span"); icon.className = "quote-file-icon"; icon.textContent = "PDF"; item.append(icon); }
-      const copy = document.createElement("span"); copy.className = "quote-file-copy";
-      const name = document.createElement("strong"); name.textContent = file.name;
-      const size = document.createElement("small"); size.textContent = formatBytes(file.size); copy.append(name, size);
-      const remove = document.createElement("button"); remove.type = "button"; remove.className = "quote-upload__remove"; remove.textContent = "REMOVER"; remove.setAttribute("aria-label", `Remover ${file.name}`);
-      remove.addEventListener("click", () => { selectedFiles.splice(index, 1); syncInput(); render(); });
-      item.append(copy, remove); list.append(item);
+      if (file.type.startsWith("image/")) {
+        const img = document.createElement("img");
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        img.src = url;
+        img.alt = "";
+        item.append(img);
+      } else {
+        const icon = document.createElement("span");
+        icon.className = "quote-file-icon";
+        icon.textContent = "PDF";
+        item.append(icon);
+      }
+      const copy = document.createElement("span");
+      copy.className = "quote-file-copy";
+      const name = document.createElement("strong");
+      name.textContent = file.name;
+      const size = document.createElement("small");
+      size.textContent = formatBytes(file.size);
+      copy.append(name, size);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "quote-upload__remove";
+      remove.textContent = "REMOVER";
+      remove.setAttribute("aria-label", `Remover ${file.name}`);
+      remove.addEventListener("click", () => {
+        selectedFiles.splice(index, 1);
+        syncInput();
+        render();
+      });
+      item.append(copy, remove);
+      list.append(item);
     });
     updateSummary(selectedFiles);
   };
-  const accept = (incoming) => {
+
+  const accept = (incoming, source = "picker") => {
     const unique = [...selectedFiles];
-    for (const file of incoming) if (!unique.some((current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified)) unique.push(file);
+    for (const file of incoming) {
+      if (!unique.some((current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified)) {
+        unique.push(file);
+      }
+    }
     const error = validateFiles(unique);
-    if (error) { input.setCustomValidity(error); input.reportValidity(); input.setCustomValidity(""); return; }
-    selectedFiles = unique; syncInput(); render();
+    if (error) {
+      input.setCustomValidity(error);
+      input.reportValidity();
+      input.setCustomValidity("");
+      return;
+    }
+    selectedFiles = unique;
+    syncInput();
+    render();
+    if (incoming.length) trackEvent(source === "camera" ? "quote_camera_photo" : "quote_files_selected", { count: incoming.length });
   };
-  input.addEventListener("change", () => accept([...input.files]));
-  ["dragenter", "dragover"].forEach((type) => zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.add("is-dragging"); }));
-  ["dragleave", "drop"].forEach((type) => zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.remove("is-dragging"); }));
-  zone.addEventListener("drop", (event) => accept([...event.dataTransfer.files]));
-  return { getFiles: () => [...selectedFiles], reset() { selectedFiles = []; input.value = ""; render(); } };
+
+  input.addEventListener("change", () => accept([...input.files], "picker"));
+  cameraInput?.addEventListener("change", () => {
+    accept([...cameraInput.files], "camera");
+    cameraInput.value = "";
+  });
+  ["dragenter", "dragover"].forEach((type) => zone.addEventListener(type, (event) => {
+    event.preventDefault();
+    zone.classList.add("is-dragging");
+  }));
+  ["dragleave", "drop"].forEach((type) => zone.addEventListener(type, (event) => {
+    event.preventDefault();
+    zone.classList.remove("is-dragging");
+  }));
+  zone.addEventListener("drop", (event) => accept([...event.dataTransfer.files], "drop"));
+
+  return {
+    getFiles: () => [...selectedFiles],
+    reset() {
+      selectedFiles = [];
+      input.value = "";
+      if (cameraInput) cameraInput.value = "";
+      render();
+    },
+  };
 }
 
 function setupSummary(form) {
@@ -155,7 +239,7 @@ async function registerQuote(form, files) {
   const response = await fetch("/api/quotes", { method: "POST", body: payload, headers: { Accept: "application/json" } });
   const body = await response.json().catch(() => null);
   if (!response.ok || body?.success !== true || !body?.data) {
-    const error = new Error(body?.error?.message || (response.ok ? "Backend de orçamento indisponível neste ambiente." : `Falha ao registrar (${response.status}).`));
+    const error = new Error(body?.error?.message || (response.ok ? "Serviço de solicitação temporariamente indisponível." : `Falha ao registrar (${response.status}).`));
     error.status = response.ok ? 503 : response.status; error.code = body?.error?.code || "request_failed"; throw error;
   }
   return body.data;
@@ -182,7 +266,12 @@ function setupWizard(form, updateSummary, getFiles) {
     progress.style.setProperty("--progress", `${((current + 1) / steps.length) * 100}%`);
     progressLabel.textContent = `ETAPA ${current + 1} DE ${steps.length}`; progressTitle.textContent = STEP_TITLES[current];
     updateSummary(getFiles()); draft?.save();
-    if (focus) { const heading = steps[current].querySelector("h4"); heading?.focus?.({ preventScroll: true }); steps[current].scrollIntoView({ behavior: "smooth", block: "start" }); }
+    if (focus) {
+      trackEvent("quote_step_view", { step: current + 1 });
+      const heading = steps[current].querySelector("h4");
+      heading?.focus?.({ preventScroll: true });
+      steps[current].scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
   draft = setupDraft(form, () => current, setStep);
   form.addEventListener("click", (event) => {
@@ -196,24 +285,38 @@ function setupWizard(form, updateSummary, getFiles) {
 
 export function setupQuoteForm() {
   const form = document.querySelector("#quote-form"); if (!form) return;
-  const status = document.querySelector("#form-status"); const submit = document.querySelector("#quote-submit"); const success = document.querySelector("#quote-success"); const successCode = document.querySelector("#quote-success-code"); const copyCode = document.querySelector("#copy-quote-code"); const successWhatsApp = document.querySelector("#success-whatsapp"); const fallbackWhatsApp = document.querySelector("#fallback-whatsapp");
+  const status = document.querySelector("#form-status"); const submit = document.querySelector("#quote-submit"); const success = document.querySelector("#quote-success"); const successCode = document.querySelector("#quote-success-code"); const copyCode = document.querySelector("#copy-quote-code"); const copyTrackingLink = document.querySelector("#copy-tracking-link"); const successWhatsApp = document.querySelector("#success-whatsapp"); const fallbackWhatsApp = document.querySelector("#fallback-whatsapp");
+  let lastTrackingLink = "";
   const updateSummary = setupSummary(form); let fileState; const wizard = setupWizard(form, updateSummary, () => fileState?.getFiles?.() || []); fileState = setupFiles(form, updateSummary); form.querySelector("#unknown-dimensions")?.dispatchEvent(new Event("change")); updateSummary(fileState.getFiles());
 
   copyCode?.addEventListener("click", async () => { const code = clean(successCode?.textContent); if (!code || code === "—") return; try { await navigator.clipboard.writeText(code); copyCode.textContent = "CÓDIGO COPIADO"; } catch { copyCode.textContent = code; } });
-  document.querySelector("#new-quote-request")?.addEventListener("click", () => { form.reset(); fileState.reset(); wizard.clearDraft(); success.hidden = true; form.querySelector(".quote-wizard-head").hidden = false; fallbackWhatsApp.hidden = true; copyCode.textContent = "COPIAR CÓDIGO"; [...form.querySelectorAll("[data-quote-step]")].forEach((step) => { step.hidden = true; }); wizard.reset(); updateSummary([]); form.querySelector("#unknown-dimensions")?.dispatchEvent(new Event("change")); });
+  copyTrackingLink?.addEventListener("click", async () => {
+    if (!lastTrackingLink) return;
+    try {
+      await navigator.clipboard.writeText(lastTrackingLink);
+      copyTrackingLink.textContent = "LINK COPIADO";
+    } catch {
+      copyTrackingLink.textContent = "COPIE O LINK DA BARRA";
+      history.replaceState(null, "", lastTrackingLink);
+    }
+  });
+  document.querySelector("#new-quote-request")?.addEventListener("click", () => { form.reset(); fileState.reset(); wizard.clearDraft(); success.hidden = true; form.querySelector(".quote-wizard-head").hidden = false; fallbackWhatsApp.hidden = true; copyCode.textContent = "COPIAR CÓDIGO"; if (copyTrackingLink) copyTrackingLink.textContent = "COPIAR LINK PRIVADO"; lastTrackingLink = ""; [...form.querySelectorAll("[data-quote-step]")].forEach((step) => { step.hidden = true; }); wizard.reset(); updateSummary([]); form.querySelector("#unknown-dimensions")?.dispatchEvent(new Event("change")); });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault(); setStatus(status);
     if (!validateStep(form.querySelector('[data-quote-step="4"]')) || !form.reportValidity()) return;
     const files = fileState.getFiles(); const fileError = validateFiles(files); if (fileError) { setStatus(status, fileError, "error"); return; }
-    const data = new FormData(form); fallbackWhatsApp.hidden = true; submit.disabled = true; submit.setAttribute("aria-busy", "true"); setStatus(status, "Registrando sua solicitação com segurança…");
+    const data = new FormData(form); fallbackWhatsApp.hidden = true; submit.disabled = true; submit.setAttribute("aria-busy", "true"); setStatus(status, "Registrando sua solicitação com segurança…"); trackEvent("quote_submit_attempt");
     try {
       const result = await registerQuote(form, files); const code = clean(result?.public_code).toUpperCase(); const token = clean(result?.tracking_token); saveTrackingToken(code, token);
+      lastTrackingLink = buildTrackingLink(code, token);
       successCode.textContent = code || "—"; successWhatsApp.href = buildWhatsAppMessage(data, code, files.length, true); const trackingCode = document.querySelector("#tracking-code"); if (trackingCode) trackingCode.value = code;
+      trackEvent("quote_completed", { has_files: files.length > 0, file_count: files.length });
       wizard.clearDraft(); [...form.querySelectorAll("[data-quote-step]")].forEach((step) => { step.hidden = true; }); form.querySelector(".quote-wizard-head").hidden = true; success.hidden = false; setStatus(status, ""); success.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (error) {
       const unavailable = [404,405,501,502,503].includes(error.status) || error instanceof TypeError;
-      if (unavailable) { setStatus(status, "O registro online não está disponível neste ambiente. Nenhum dado foi salvo; você ainda pode continuar somente pelo WhatsApp.", "error"); fallbackWhatsApp.href = buildWhatsAppMessage(data, "", files.length, false); fallbackWhatsApp.hidden = false; }
+      trackEvent("quote_error", { code: error.code || "request_failed" });
+      if (unavailable) { setStatus(status, "Não foi possível registrar online agora. Nenhum dado foi salvo. Você pode continuar o atendimento pelo WhatsApp.", "error"); fallbackWhatsApp.href = buildWhatsAppMessage(data, "", files.length, false); fallbackWhatsApp.hidden = false; }
       else setStatus(status, error.message || "Não foi possível registrar a solicitação. Revise os dados e tente novamente.", "error");
     } finally { submit.disabled = false; submit.removeAttribute("aria-busy"); }
   });
@@ -223,20 +326,86 @@ export function setupQuoteForm() {
 
 function setupTracking() {
   const form = document.querySelector("#tracking-form"); if (!form) return;
-  const status = document.querySelector("#tracking-status"); const result = document.querySelector("#tracking-result"); const codeInput = form.querySelector("#tracking-code");
+  const status = document.querySelector("#tracking-status");
+  const result = document.querySelector("#tracking-result");
+  const codeInput = form.querySelector("#tracking-code");
+
   const fill = (data) => {
-    result.querySelector('[data-track="code"]').textContent = data.public_code || "—"; result.querySelector('[data-track="status"]').textContent = data.status_label || data.status || "—";
-    result.querySelector('[data-track="created"]').textContent = formatDate(data.created_at); result.querySelector('[data-track="updated"]').textContent = formatDate(data.updated_at); result.querySelector('[data-track="note"]').textContent = data.public_note || "Sem observação pública no momento.";
-    const host = result.querySelector('[data-track="timeline"]'); host.replaceChildren(); const entries = data.history || [];
-    entries.forEach((entry, index) => { const item = document.createElement("div"); item.className = `tracking-timeline__item ${index === entries.length - 1 ? "is-current" : "is-done"}`; const dot = document.createElement("i"); const copy = document.createElement("span"); const strong = document.createElement("strong"); strong.textContent = entry.status_label || entry.status; const time = document.createElement("small"); time.textContent = formatDate(entry.created_at); copy.append(strong, time); if (entry.public_note) { const note = document.createElement("p"); note.textContent = entry.public_note; copy.append(note); } item.append(dot, copy); host.append(item); });
+    result.querySelector('[data-track="code"]').textContent = data.public_code || "—";
+    result.querySelector('[data-track="status"]').textContent = data.status_label || data.status || "—";
+    result.querySelector('[data-track="created"]').textContent = formatDate(data.created_at);
+    result.querySelector('[data-track="updated"]').textContent = formatDate(data.updated_at);
+    result.querySelector('[data-track="note"]').textContent = data.public_note || "Sem observação pública no momento.";
+    const host = result.querySelector('[data-track="timeline"]');
+    host.replaceChildren();
+    const entries = data.history || [];
+    entries.forEach((entry, index) => {
+      const item = document.createElement("div");
+      item.className = `tracking-timeline__item ${index === entries.length - 1 ? "is-current" : "is-done"}`;
+      const dot = document.createElement("i");
+      const copy = document.createElement("span");
+      const strong = document.createElement("strong");
+      strong.textContent = entry.status_label || entry.status;
+      const time = document.createElement("small");
+      time.textContent = formatDate(entry.created_at);
+      copy.append(strong, time);
+      if (entry.public_note) {
+        const note = document.createElement("p");
+        note.textContent = entry.public_note;
+        copy.append(note);
+      }
+      item.append(dot, copy);
+      host.append(item);
+    });
     result.hidden = false;
   };
+
+  async function consult(code, token) {
+    result.hidden = true;
+    setStatus(status);
+    code = clean(code).toUpperCase();
+    token = clean(token);
+    if (!code) return;
+    codeInput.value = code;
+    if (!token) {
+      setStatus(status, "A chave privada desta solicitação não está disponível neste aparelho. Abra o link privado salvo quando o pedido foi criado ou fale com a FR.", "error");
+      return;
+    }
+    const button = form.querySelector("button");
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    setStatus(status, "Consultando…");
+    try {
+      const response = await fetch(`/api/quotes/${encodeURIComponent(code)}`, { headers: { Accept: "application/json", "X-Quote-Token": token } });
+      const body = await response.json().catch(() => null);
+      if (!response.ok || body?.success !== true || !body?.data) throw new Error(body?.error?.message || "Não foi possível consultar esta solicitação.");
+      fill(body.data);
+      saveTrackingToken(code, token);
+      trackEvent("tracking_success");
+      setStatus(status, "Status atualizado.", "success");
+    } catch (error) {
+      trackEvent("tracking_error");
+      setStatus(status, error.message || "Não foi possível consultar agora.", "error");
+    } finally {
+      button.disabled = false;
+      button.removeAttribute("aria-busy");
+    }
+  }
+
   form.addEventListener("submit", async (event) => {
-    event.preventDefault(); result.hidden = true; setStatus(status); const code = clean(codeInput.value).toUpperCase(); if (!code) return; codeInput.value = code; const token = getStoredTokens()[code];
-    if (!token) { setStatus(status, "A chave privada desta solicitação não está salva neste navegador. Use o dispositivo que registrou o pedido ou fale com a FR.", "error"); return; }
-    const button = form.querySelector("button"); button.disabled = true; button.setAttribute("aria-busy", "true"); setStatus(status, "Consultando…");
-    try { const response = await fetch(`/api/quotes/${encodeURIComponent(code)}`, { headers: { Accept: "application/json", "X-Quote-Token": token } }); const body = await response.json().catch(() => null); if (!response.ok || body?.success !== true || !body?.data) throw new Error(body?.error?.message || "Não foi possível consultar esta solicitação."); fill(body.data); setStatus(status, "Status atualizado.", "success"); }
-    catch (error) { setStatus(status, error.message || "Não foi possível consultar agora.", "error"); }
-    finally { button.disabled = false; button.removeAttribute("aria-busy"); }
+    event.preventDefault();
+    const code = clean(codeInput.value).toUpperCase();
+    await consult(code, getStoredTokens()[code]);
   });
+
+  const shared = readTrackingLinkFromHash();
+  if (shared) {
+    saveTrackingToken(shared.code, shared.token);
+    codeInput.value = shared.code;
+    requestAnimationFrame(() => {
+      document.querySelector("#acompanhar")?.scrollIntoView({ block: "start" });
+      consult(shared.code, shared.token);
+    });
+  }
 }
+

@@ -17,27 +17,27 @@ export function getViewportProfile(width, height, out = {}) {
   if (mobileNarrow) {
     name = "mobile-narrow";
     spread = 0.62;
-    scrollScreens = 4.55;
+    scrollScreens = 3.25;
   } else if (mobilePortrait) {
     name = "mobile-portrait";
     spread = 0.68;
-    scrollScreens = 4.65;
+    scrollScreens = 3.35;
   } else if (tabletPortrait) {
     name = "tablet-portrait";
     spread = 0.78;
-    scrollScreens = 4.8;
+    scrollScreens = 4.0;
   } else if (mobileLandscape) {
     name = "mobile-landscape";
     spread = 0.74;
-    scrollScreens = 4.35;
+    scrollScreens = 3.2;
   } else if (desktopWide) {
     name = "desktop-wide";
     spread = 1;
-    scrollScreens = 5.05;
+    scrollScreens = 4.7;
   } else if (desktop) {
     name = "desktop";
     spread = w < 1100 ? 0.9 : 1;
-    scrollScreens = 5;
+    scrollScreens = 4.6;
   }
 
   out.name = name;

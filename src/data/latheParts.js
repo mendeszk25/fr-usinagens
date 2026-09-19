@@ -24,7 +24,7 @@ const part = ({
   metadata: {
     material,
     specification:
-      "Estudo ilustrativo de um torno horizontal universal — dimensões, capacidade e especificações dependem da máquina real.",
+      "Visualização técnica de um torno horizontal universal. Dimensões, capacidade e especificações dependem da máquina real.",
   },
 });
 

@@ -6,7 +6,7 @@ function makeWork(item, index) {
   const figure = document.createElement("figure");
   const img = document.createElement("img");
   img.src = item.image_url;
-  img.alt = item.title || "Trabalho publicado pela FR Usinagens";
+  img.alt = item.title || "Trabalho da FR Usinagens";
   img.loading = "lazy";
   img.decoding = "async";
   figure.append(img);
@@ -17,7 +17,7 @@ function makeWork(item, index) {
   const title = document.createElement("h3");
   title.textContent = item.title;
   const copy = document.createElement("p");
-  copy.textContent = item.description || "Registro publicado pela FR Usinagens.";
+  copy.textContent = item.description || "Trabalho realizado pela FR Usinagens.";
   meta.append(tag, title, copy);
   article.append(figure, meta);
   return article;
@@ -32,6 +32,7 @@ function setupCompare(node) {
     range.setAttribute("aria-valuetext", `${value} por cento da imagem antes e ${100 - value} por cento da imagem depois`);
   };
   range.addEventListener("input", update);
+  range.addEventListener("change", update);
   update();
 }
 
@@ -40,11 +41,11 @@ function makeComparison(item) {
   article.className = "dynamic-comparison-card";
   const heading = document.createElement("header");
   const eyebrow = document.createElement("span");
-  eyebrow.textContent = "ANTES × DEPOIS / PUBLICADO";
+  eyebrow.textContent = "ANTES × DEPOIS / FR USINAGENS";
   const title = document.createElement("h3");
   title.textContent = item.title;
   const copy = document.createElement("p");
-  copy.textContent = item.description || "Comparativo publicado pela FR Usinagens.";
+  copy.textContent = item.description || "Comparativo de trabalho realizado pela FR Usinagens.";
   heading.append(eyebrow, title, copy);
 
   const comparison = document.createElement("div");
@@ -53,7 +54,7 @@ function makeComparison(item) {
   comparison.style.setProperty("--compare-position", "50%");
   comparison.innerHTML = `
     <div class="compare-stage">
-      <img class="compare-image compare-image--before" src="${item.before_url}" alt="${item.title} antes do serviço" loading="lazy" decoding="async" />
+      <img class="compare-image compare-image--before" src="${item.before_url}" alt="${escapeAttr(item.title)} antes do serviço" loading="lazy" decoding="async" />
       <div class="compare-after" aria-hidden="true"><img class="compare-image compare-image--after" src="${item.after_url}" alt="" loading="lazy" decoding="async" /></div>
       <span class="compare-label compare-label--before">ANTES</span>
       <span class="compare-label compare-label--after">DEPOIS</span>
@@ -73,22 +74,49 @@ async function getJson(url) {
   return body.data;
 }
 
-export async function setupDynamicContent() {
+function whenNear(element, callback) {
+  if (!element) return () => {};
+  if (!("IntersectionObserver" in window)) {
+    callback();
+    return () => {};
+  }
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    observer.disconnect();
+    callback();
+  }, { rootMargin: "500px 0px", threshold: 0.01 });
+  observer.observe(element);
+  return () => observer.disconnect();
+}
+
+export function setupDynamicContent() {
   const worksHost = document.querySelector("#dynamic-works");
   const comparisonsHost = document.querySelector("#dynamic-comparisons");
-  const jobs = [];
+  const cleanups = [];
 
-  if (worksHost) jobs.push(getJson("/api/content/works").then((data) => {
-    if (!data.items?.length) return;
-    worksHost.replaceChildren(...data.items.filter((item) => item.image_url).map(makeWork));
-    worksHost.hidden = !worksHost.children.length;
-  }).catch(() => {}));
+  if (worksHost) cleanups.push(whenNear(worksHost.closest("#trabalhos") || worksHost, async () => {
+    try {
+      const data = await getJson("/api/content/works");
+      const items = (data.items || []).filter((item) => item.image_url);
+      if (!items.length) return;
+      worksHost.replaceChildren(...items.map(makeWork));
+      worksHost.hidden = false;
+      const fallback = worksHost.closest("#trabalhos")?.querySelector(".works-editorial-grid");
+      if (fallback) fallback.hidden = true;
+    } catch { /* static real work remains as resilient fallback */ }
+  }));
 
-  if (comparisonsHost) jobs.push(getJson("/api/content/before-after").then((data) => {
-    if (!data.items?.length) return;
-    comparisonsHost.replaceChildren(...data.items.filter((item) => item.before_url && item.after_url).map(makeComparison));
-    comparisonsHost.hidden = !comparisonsHost.children.length;
-  }).catch(() => {}));
+  if (comparisonsHost) cleanups.push(whenNear(comparisonsHost.closest("#recuperacao") || comparisonsHost, async () => {
+    try {
+      const data = await getJson("/api/content/before-after");
+      const items = (data.items || []).filter((item) => item.before_url && item.after_url);
+      if (!items.length) return;
+      comparisonsHost.replaceChildren(...items.map(makeComparison));
+      comparisonsHost.hidden = false;
+      const fallback = comparisonsHost.closest("#recuperacao")?.querySelector("[data-before-after]");
+      if (fallback) fallback.hidden = true;
+    } catch { /* static real comparison remains as resilient fallback */ }
+  }));
 
-  await Promise.allSettled(jobs);
+  return () => cleanups.forEach((cleanup) => cleanup());
 }

@@ -167,7 +167,7 @@
   /* Mantém a narrativa sticky, mas com uma passagem mais rápida.
      190vh = ~90vh de percurso útil depois do primeiro viewport,
      suficiente para ler as etapas sem prender o usuário por tempo demais. */
-  min-height: 190vh;
+  min-height: 180vh;
   position: relative;
   background: #080a0b;
   border-bottom: 1px solid var(--line);
@@ -254,7 +254,7 @@
 
 /* PRECISÃO --------------------------------------------------------------- */
 .engineering-precision {
-  min-height: 205vh;
+  min-height: 185vh;
   position: relative;
   background: #0a0d0f;
   border-block: 1px solid var(--line);
@@ -332,7 +332,7 @@
   .engineering-components__copy,
   .engineering-components__visual { grid-column: 1 / -1; }
   .engineering-components__visual { min-height: 460px; }
-  .engineering-process { min-height: 180vh; }
+  .engineering-process { min-height: 165vh; }
   .engineering-process__stage,
   .engineering-precision__stage { padding-top: 80px; }
   .engineering-process__copy { grid-column: 1 / 6; }
@@ -349,7 +349,7 @@
   .engineering-components__visual { min-height: 400px; }
   .engineering-3d-host { min-height: 390px; }
   .engineering-drag-hint { display: none; }
-  .engineering-process { min-height: 170vh; }
+  .engineering-process { min-height: 148vh; }
   .engineering-process__stage,
   .engineering-precision__stage {
     min-height: 100svh;
@@ -366,7 +366,7 @@
   .engineering-precision__copy > p:not(.eyebrow) { margin-top: 16px; font-size: 12px; max-width: 92%; }
   .engineering-process__legend { display: none; }
   .engineering-process__status { margin-top: 18px; }
-  .engineering-precision { min-height: 185vh; }
+  .engineering-precision { min-height: 152vh; }
   .engineering-precision__copy dl { display: none; }
   .precision-overlay { inset: 9% 1% 6%; }
   .precision-axis--diameter { right: 4%; }

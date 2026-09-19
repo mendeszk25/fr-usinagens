@@ -158,10 +158,6 @@ test("real workshop imagery loads locally and service links preselect quote type
 test("mounted result stays static and quote section is reachable", async ({ page }) => {
   await ready(page);
   await page.locator("#orcamento").scrollIntoViewIfNeeded();
-  await expect(page.locator("#result-canvas canvas")).toBeVisible();
-  const result = await page.locator("#result-canvas canvas").screenshot();
-  await page.waitForTimeout(250);
-  expect(await page.locator("#result-canvas canvas").screenshot()).toEqual(result);
   await expect(page.locator("#quote-form")).toBeInViewport();
   await noOverflow(page);
 });

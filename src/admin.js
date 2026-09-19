@@ -29,7 +29,7 @@ async function api(url, options = {}) {
   const response = await fetch(url, { credentials: "same-origin", ...options, headers });
   const body = await response.json().catch(() => null);
   if (!response.ok || body?.success !== true) {
-    const error = new Error(body?.error?.message || (response.ok ? "Backend administrativo indisponível neste ambiente." : `Erro ${response.status}`));
+    const error = new Error(body?.error?.message || (response.ok ? "Painel temporariamente indisponível." : `Erro ${response.status}`));
     error.status = response.status || 503;
     if (error.status === 401 && url !== "/api/admin/login") showLogin(true);
     throw error;
@@ -153,7 +153,28 @@ async function openDetail(id) {
 function askConfirm(title,copy){return new Promise((resolve)=>{$("#admin-confirm-title").textContent=title;$("#admin-confirm-copy").textContent=copy;const ok=$("#admin-confirm-ok");const cancel=$("#admin-confirm-cancel");const finish=(value)=>{ok.removeEventListener("click",yes);cancel.removeEventListener("click",no);confirmDialog.removeEventListener("cancel",no);confirmDialog.close();resolve(value)};const yes=()=>finish(true);const no=()=>finish(false);ok.addEventListener("click",yes);cancel.addEventListener("click",no);confirmDialog.addEventListener("cancel",no,{once:true});confirmDialog.showModal()})}
 function openLightbox(url){$("#admin-lightbox-image").src=url;lightbox.showModal()}
 
-async function uploadMedia(file){const form=new FormData();form.set("file",file,file.name);return api("/api/admin/media",{method:"POST",body:form})}
+async function optimizePublicImage(file) {
+  if (!file?.type?.startsWith("image/") || typeof createImageBitmap !== "function") return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxDimension = 1800;
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: true });
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", .84));
+    if (!blob || (scale === 1 && blob.size >= file.size)) return file;
+    const base = file.name.replace(/\.[^.]+$/, "") || "imagem";
+    return new File([blob], `${base}.webp`, { type: "image/webp", lastModified: Date.now() });
+  } catch {
+    return file;
+  }
+}
+async function uploadMedia(file){const optimized=await optimizePublicImage(file);const form=new FormData();form.set("file",optimized,optimized.name);return api("/api/admin/media",{method:"POST",body:form})}
 function previewImage(host,url,label="Imagem atual"){host.replaceChildren();if(!url)return;const figure=document.createElement("figure");const img=document.createElement("img");img.src=url;img.alt=label;const cap=document.createElement("figcaption");cap.textContent=label;figure.append(img,cap);host.append(figure)}
 function resetWorkForm(){const form=$("#work-form");form.reset();form.elements.id.value="";form.elements.image_file_id.value="";$("#work-form-title").textContent="NOVO TRABALHO";$("#work-preview").replaceChildren();setStatus($("#work-status"),"")}
 async function loadWorks(){const host=$("#work-list");const status=$("#work-status");try{const data=await api("/api/admin/works");host.replaceChildren();if(!data.items.length){host.append(empty("Nenhum trabalho cadastrado.","Cadastre apenas trabalhos reais da oficina."));return}data.items.forEach((item)=>{const row=document.createElement("article");row.className="admin-content-item";if(item.image_url){const img=document.createElement("img");img.src=item.image_url;img.alt="";row.append(img)}const copy=document.createElement("div");copy.innerHTML=`<span>${item.published?"PUBLICADO":"RASCUNHO"}${item.category?` · ${html(item.category)}`:""}</span><strong>${html(item.title)}</strong><p>${html(item.description||"")}</p>`;const actions=document.createElement("div");const edit=document.createElement("button");edit.type="button";edit.textContent="EDITAR";edit.addEventListener("click",()=>{const form=$("#work-form");form.elements.id.value=item.id;form.elements.title.value=item.title||"";form.elements.category.value=item.category||"";form.elements.description.value=item.description||"";form.elements.sort_order.value=item.sort_order||0;form.elements.published.checked=item.published;form.elements.image_file_id.value=item.image_file_id||"";$("#work-form-title").textContent="EDITAR TRABALHO";previewImage($("#work-preview"),item.image_url,"Imagem atual");form.scrollIntoView({behavior:"smooth",block:"start"})});const del=document.createElement("button");del.type="button";del.textContent="EXCLUIR";del.addEventListener("click",async()=>{if(!(await askConfirm("Excluir trabalho?",`“${item.title}” será removido do painel e do site se estiver publicado.`)))return;try{await api(`/api/admin/works/${item.id}`,{method:"DELETE"});await loadWorks()}catch(error){setStatus(status,error.message,true)}});actions.append(edit,del);row.append(copy,actions);host.append(row)})}catch(error){setStatus(status,error.message,true)}}

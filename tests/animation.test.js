@@ -100,7 +100,8 @@ test("viewport profiles preserve the same story while tightening exploded spread
   assert.ok(desktop.name.startsWith("desktop"));
   assert.ok(iphone.spread < desktop.spread);
   assert.ok(landscape.spread < desktop.spread);
-  assert.ok(iphone.scrollScreens > 4);
+  assert.ok(iphone.scrollScreens >= 3 && iphone.scrollScreens < 4);
+  assert.ok(desktop.scrollScreens > iphone.scrollScreens);
 });
 
 test("high-DPR and constrained devices lower render cost without forcing a fallback", () => {

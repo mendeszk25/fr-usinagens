@@ -350,3 +350,9 @@ A camada 3D secundária foi revisada para evitar repetição visual entre as se�
 - cada seção usa seu próprio canvas WebGL lazy-loaded, evitando que o estado/modelo de uma seção apareça na outra.
 
 O backend, painel administrativo, orçamento, D1/R2 e autenticação não foram alterados nesta revisão.
+
+## Produção oficial — checklist final
+
+A FR Usinagens deve ser tratada como produto de produção. Consulte `PRODUCTION-NOTES.md` para configuração externa, notificações, privacidade, acompanhamento entre dispositivos e pendências que dependem de dados reais da empresa.
+
+Antes do deploy oficial, configure `SITE_URL` com o domínio definitivo, os secrets administrativos e, se desejado, as variáveis do Resend. Rode `npm test` e `npm run build`; não publique se o build falhar.

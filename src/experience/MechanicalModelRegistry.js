@@ -1,21 +1,21 @@
 export const MODEL_METADATA = {
   gearShaft: {
     id: "gearShaft",
-    displayName: "EIXO COM ENGRENAGEM / ESTUDO",
+    displayName: "EIXO COM ENGRENAGEM / VISUALIZAÇÃO",
     family: "shaft-gear",
     compatibleScenes: ["components", "process"],
     cameraPreset: "long",
   },
   threadedPin: {
     id: "threadedPin",
-    displayName: "PINO ROSCADO / ESTUDO",
+    displayName: "PINO ROSCADO / VISUALIZAÇÃO",
     family: "threaded-pin",
     compatibleScenes: ["components", "precision"],
     cameraPreset: "compact",
   },
   industrialAssembly: {
     id: "industrialAssembly",
-    displayName: "CONJUNTO INDUSTRIAL / ESTUDO",
+    displayName: "CONJUNTO INDUSTRIAL / VISUALIZAÇÃO",
     family: "industrial-assembly",
     compatibleScenes: ["components", "precision"],
     cameraPreset: "medium",

@@ -1,0 +1,112 @@
+/* Production hardening: customer-facing utility styles. */
+
+.faq-section {
+  background: #090c0e;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  row-gap: 44px;
+}
+.faq-section__head { grid-column: 1 / 6; }
+.faq-section__head > p:last-child { margin-top: 20px; max-width: 520px; color: #8f999f; font-size: 14px; line-height: 1.7; }
+.faq-list { grid-column: 7 / -1; border-top: 1px solid var(--line); }
+.faq-list details { border-bottom: 1px solid var(--line); }
+.faq-list summary { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; cursor: pointer; list-style: none; color: #d5dade; font-size: 13px; line-height: 1.45; }
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary::after { content: "+"; flex: 0 0 auto; color: #7e8a91; font: 300 24px/1 var(--headline); transition: transform .2s ease; }
+.faq-list details[open] summary::after { transform: rotate(45deg); }
+.faq-list details p { max-width: 620px; padding: 0 40px 22px 0; color: #89949a; font-size: 12px; line-height: 1.7; }
+
+.mobile-quick-cta { display: none; }
+
+.quote-upload__actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .78fr); gap: 12px; }
+.quote-upload__camera { position: relative; min-height: 150px; display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 24px; border: 1px solid rgba(195, 200, 203, .2); background: rgba(255,255,255,.008); text-align: center; cursor: pointer; transition: border-color .2s, background .2s; }
+.quote-upload__camera:hover { border-color: rgba(223, 228, 231, .5); background: rgba(255,255,255,.025); }
+.quote-upload__camera input { position: absolute; width: 1px !important; height: 1px; opacity: 0; pointer-events: none; }
+.quote-upload__camera > span { font: 300 24px/1 var(--headline); color: #aeb8bd; }
+.quote-upload__camera strong { font-size: 10px; letter-spacing: 1.4px; }
+.quote-upload__camera small { color: #6f7b82; font-size: 9px; }
+.form-note a { color: #c4cdd2; text-decoration: underline; text-underline-offset: 3px; }
+
+.privacy-page { min-height: 100vh; background: #080a0b; color: var(--text); }
+.privacy-header { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 var(--pad); border-bottom: 1px solid var(--line); }
+.privacy-main { padding: 90px var(--pad) 110px; }
+.privacy-hero { max-width: 1040px; }
+.privacy-hero h1 { margin: 18px 0 26px; font: 500 clamp(52px, 7vw, 104px)/.9 var(--headline); letter-spacing: -1px; }
+.privacy-hero h1 span { color: #889399; }
+.privacy-hero > p:last-child { max-width: 660px; color: #929da3; font-size: 15px; line-height: 1.75; }
+.privacy-grid { margin-top: 82px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.privacy-grid article { min-height: 250px; padding: 28px 30px 34px 0; border-bottom: 1px solid var(--line); }
+.privacy-grid article:nth-child(even) { padding-left: 30px; border-left: 1px solid var(--line); }
+.privacy-grid article > span { color: #69757c; font-size: 9px; letter-spacing: 1.5px; }
+.privacy-grid h2 { margin: 28px 0 16px; font-size: clamp(28px, 3vw, 42px); }
+.privacy-grid p { max-width: 570px; color: #8b969c; font-size: 13px; line-height: 1.72; }
+.privacy-contact { margin-top: 86px; padding-top: 34px; border-top: 1px solid var(--line); }
+.privacy-contact h2 { margin: 12px 0 26px; }
+.privacy-contact > div { display: flex; gap: 12px; flex-wrap: wrap; }
+.privacy-footer { display: flex; justify-content: space-between; gap: 20px; padding: 28px var(--pad); border-top: 1px solid var(--line); color: #7f898f; font-size: 10px; letter-spacing: 1px; }
+
+@media (max-width: 900px) {
+  .faq-section__head, .faq-list { grid-column: 1 / -1; }
+  .privacy-grid { grid-template-columns: 1fr; }
+  .privacy-grid article:nth-child(even) { padding-left: 0; border-left: 0; }
+}
+
+@media (max-width: 759px) {
+  .mobile-quick-cta {
+    position: fixed;
+    left: max(14px, calc(env(safe-area-inset-left) + 12px));
+    right: max(14px, calc(env(safe-area-inset-right) + 12px));
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 10px));
+    z-index: 60;
+    min-height: 50px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    background: rgba(213, 220, 224, .96);
+    color: #090c0e;
+    border: 1px solid rgba(255,255,255,.3);
+    box-shadow: 0 18px 46px rgba(0,0,0,.34);
+    backdrop-filter: blur(8px);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.1px;
+    transform: translateY(calc(100% + 30px));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform .24s ease, opacity .24s ease, visibility .24s;
+  }
+  .mobile-quick-cta.is-visible { transform: translateY(0); opacity: 1; visibility: visible; pointer-events: auto; }
+  .mobile-quick-cta span { font-size: 17px; }
+
+  .faq-section { padding-top: 72px; padding-bottom: 72px; row-gap: 30px; }
+  .faq-section__head > p:last-child { font-size: 13px; }
+  .faq-list summary { min-height: 68px; font-size: 13px; }
+  .faq-list details p { padding-right: 10px; font-size: 12.5px; }
+
+  .quote-upload { grid-template-columns: 1fr; }
+  .quote-upload__actions { grid-column: 1; grid-template-columns: 1fr; }
+  .quote-upload__target, .quote-upload__camera { min-height: 112px; }
+  .quote-upload__list { grid-column: 1; }
+
+  .engineering-precision__copy dt { font-size: 9px; }
+  .engineering-precision__copy dd { font-size: 12px; }
+
+  .privacy-header { min-height: 82px; padding: 0 20px; }
+  .privacy-header .button { min-height: 44px; padding: 12px 14px; font-size: 9px; }
+  .privacy-header .brand-name { display: none; }
+  .privacy-main { padding: 64px 20px 80px; }
+  .privacy-hero h1 { font-size: clamp(46px, 15vw, 70px); }
+  .privacy-hero > p:last-child { font-size: 13px; }
+  .privacy-grid { margin-top: 54px; }
+  .privacy-grid article { min-height: auto; padding: 26px 0; }
+  .privacy-grid h2 { margin-top: 18px; }
+  .privacy-contact { margin-top: 60px; }
+  .privacy-footer { padding: 24px 20px; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-quick-cta, .faq-list summary::after { transition: none; }
+}

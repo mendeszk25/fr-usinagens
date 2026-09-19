@@ -5,6 +5,7 @@ export default defineConfig({
       input: {
         main: "index.html",
         admin: "admin.html",
+        privacy: "privacy.html",
       },
       output: {
         manualChunks(id) {
