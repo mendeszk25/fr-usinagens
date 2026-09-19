@@ -39,7 +39,7 @@ export function mountMachiningExperience(section) {
     const anchor = canvas?.render(progress, part?.id);
     if (canvas && devMode) host.dataset.renderProgress = progress.toFixed(4);
     annotation.update(part, anchor, progress);
-    host.style.opacity = String(staticMode || reducedMotion ? 1 : 1 - range(progress, 0.95, 1) * 0.8);
+    host.style.opacity = String(staticMode || reducedMotion ? 1 : 1 - range(progress, 0.95, 1) * 0.62);
     stage.style.setProperty("--opening", String(reducedMotion ? 0 : range(progress, 0.18, 0.32)));
 
     // Reduced Motion keeps the user-controlled mechanical scrub intact, but

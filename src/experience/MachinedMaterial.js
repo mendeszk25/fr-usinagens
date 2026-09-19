@@ -7,9 +7,9 @@ export function createMachinedMaterial(properties, finish = "turned", options = 
   if (finish === "rubber") return material;
   const mobile = options.mobile === true;
   const detail = options.detail || (mobile ? "balanced" : "high");
-  const primaryFrequency = detail === "high" ? 1250.0 : 760.0;
-  const secondaryFrequency = detail === "high" ? 310.0 : 210.0;
-  const normalAmplitude = detail === "high" ? 0.00024 : 0.00016;
+  const primaryFrequency = detail === "high" ? 210.0 : 140.0;
+  const secondaryFrequency = detail === "high" ? 58.0 : 42.0;
+  const normalAmplitude = detail === "high" ? 0.00007 : 0.00005;
   material.onBeforeCompile = (shader) => {
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -44,7 +44,7 @@ export function createMachinedMaterial(properties, finish = "turned", options = 
       .replace(
         "#include <roughnessmap_fragment>",
         `#include <roughnessmap_fragment>
-      roughnessFactor = clamp(roughnessFactor + toolGrain() * 0.055, 0.18, 0.7);`,
+      roughnessFactor = clamp(roughnessFactor + toolGrain() * 0.022, 0.2, 0.7);`,
       )
       .replace(
         "#include <normal_fragment_maps>",
@@ -61,10 +61,10 @@ export function createMachinedMaterial(properties, finish = "turned", options = 
       .replace(
         "#include <color_fragment>",
         `#include <color_fragment>
-      diffuseColor.rgb *= 0.97 + toolGrain() * 0.045;`,
+      diffuseColor.rgb *= 0.985 + toolGrain() * 0.018;`,
       );
   };
-  material.customProgramCacheKey = () => `machined-object-space-v3-${detail}`;
+  material.customProgramCacheKey = () => `machined-object-space-v4-${detail}`;
   return material;
 }
 

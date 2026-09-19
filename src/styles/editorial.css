@@ -1799,3 +1799,171 @@
 @media(max-width:900px){.dynamic-works{grid-template-columns:repeat(2,minmax(0,1fr))}.dynamic-comparison-card{grid-template-columns:1fr}.dynamic-comparison-card>header{position:static}}
 @media(max-width:620px){.dynamic-works{grid-template-columns:1fr;gap:30px}.dynamic-comparisons{margin-top:38px}.dynamic-work-card:hover img{transform:none}}
 @media(prefers-reduced-motion:reduce){.dynamic-work-card img{transition:none}}
+
+/* FR REAL — narrativa de oficina ----------------------------------------- */
+.broken-part-story {
+  background: #0d1012;
+  border-block: 1px solid var(--line);
+  align-items: stretch;
+  padding-block: 0;
+  min-height: 720px;
+}
+.broken-part-story__visual {
+  grid-column: 1 / 8;
+  margin: 0;
+  min-height: 720px;
+  position: relative;
+  overflow: hidden;
+  background: #080a0b;
+}
+.broken-part-story__visual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 52%;
+  filter: saturate(.72) contrast(1.08) brightness(.68);
+}
+.broken-part-story__visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 55%, rgba(13,16,18,.72));
+}
+.broken-part-story__visual figcaption {
+  position: absolute;
+  z-index: 2;
+  left: 26px;
+  right: 26px;
+  bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #d4dadd;
+  font-size: 9px;
+  letter-spacing: 1.35px;
+}
+.broken-part-story__visual figcaption span { color: #87939a; }
+.broken-part-story__copy {
+  grid-column: 9 / -1;
+  align-self: center;
+  padding-block: 90px;
+}
+.broken-part-story__copy h2 {
+  margin: 24px 0 26px;
+  font-size: clamp(48px, 4.3vw, 72px);
+  line-height: .98;
+}
+.broken-part-story__copy h2 span { color: #a7b1b7; }
+.broken-part-story__copy > p:not(.eyebrow) {
+  max-width: 430px;
+  color: #a0abb1;
+  font-size: 15px;
+  line-height: 1.78;
+}
+.broken-part-story__steps {
+  display: grid;
+  gap: 0;
+  margin: 34px 0 30px;
+  border-block: 1px solid var(--line);
+}
+.broken-part-story__steps span {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(195,200,203,.1);
+  color: #87939a;
+  font-size: 9px;
+  letter-spacing: 1.25px;
+}
+.broken-part-story__steps span:last-child { border-bottom: 0; }
+
+.workshop-flow {
+  background: #0b0e10;
+  border-block: 1px solid var(--line);
+  row-gap: 50px;
+}
+.workshop-flow__head { grid-column: 1 / 7; }
+.workshop-flow__head h2 {
+  margin: 24px 0 26px;
+  font-size: clamp(48px, 4.6vw, 72px);
+  line-height: .98;
+}
+.workshop-flow__head h2 span { color: #9faab0; }
+.workshop-flow__head > p:last-child {
+  max-width: 520px;
+  color: #9aa5ab;
+  font-size: 15px;
+  line-height: 1.78;
+}
+.workshop-flow__steps {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.workshop-flow__steps li {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 26px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.workshop-flow__steps li > span {
+  color: #707d84;
+  font: 500 12px/1 var(--headline);
+  letter-spacing: 1.4px;
+}
+.workshop-flow__steps strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #e2e6e8;
+  font: 500 clamp(22px, 2vw, 30px)/1.05 var(--headline);
+  letter-spacing: -.2px;
+}
+.workshop-flow__steps p {
+  max-width: 660px;
+  color: #929da4;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.quote-reassurance {
+  display: grid;
+  gap: 0;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.quote-reassurance span {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(195,200,203,.1);
+  color: #87939a;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.quote-reassurance b {
+  color: #d5dade;
+  font-weight: 500;
+  letter-spacing: .45px;
+  margin-right: 6px;
+}
+
+@media (max-width: 900px) {
+  .broken-part-story { min-height: auto; padding-block: 0; }
+  .broken-part-story__visual,
+  .broken-part-story__copy,
+  .workshop-flow__head { grid-column: 1 / -1; }
+  .broken-part-story__visual { min-height: 520px; margin-inline: calc(-1 * var(--pad)); }
+  .broken-part-story__visual::after { background: linear-gradient(180deg, transparent 58%, rgba(13,16,18,.9)); }
+  .broken-part-story__copy { padding-block: 60px 72px; }
+  .workshop-flow__head { max-width: 620px; }
+}
+
+@media (max-width: 560px) {
+  .broken-part-story__visual { min-height: 410px; }
+  .broken-part-story__copy h2,
+  .workshop-flow__head h2 { font-size: clamp(42px, 13vw, 58px); }
+  .broken-part-story__visual figcaption { left: 18px; right: 18px; bottom: 17px; flex-direction: column; gap: 5px; }
+  .workshop-flow__steps li { grid-template-columns: 48px 1fr; gap: 14px; padding: 20px 0; }
+  .workshop-flow__steps strong { font-size: 22px; }
+}

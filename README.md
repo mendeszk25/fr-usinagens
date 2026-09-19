@@ -313,3 +313,40 @@ O exemplo em `wrangler.example.toml` documenta os três bindings.
 ### Estruturas reservadas para a próxima etapa
 
 A migration `0002_workshop_admin.sql` também cria `services` e `capability_entries` **vazias e inativas**. Elas existem apenas para receber os serviços/capacidades reais quando o responsável da FR confirmar essas informações. O site e o painel não publicam dados dessas tabelas nesta versão, evitando inventar máquinas, materiais, limites ou serviços.
+
+## Narrativa 3D secundária (v4)
+
+Além do torno principal, o site agora possui uma segunda camada visual 3D **compartilhada** para as seções abaixo do hero. Ela não cria um renderer por card/seção: um único canvas WebGL é movido entre os hosts visíveis e renderiza somente a experiência que está próxima da viewport.
+
+Novas experiências:
+
+- **Estudos de geometria mecânica**: três formas procedurais ilustrativas (cilíndrica, vazada e flangeada), selecionáveis por botões. Elas não são apresentadas como catálogo de serviços nem como capacidade confirmada da FR.
+- **Da matéria-prima à geometria final**: sequência controlada pelo scroll com material bruto, aproximação de uma ferramenta visual, estágio intermediário e forma final. É uma representação editorial, não CAM/simulação física.
+- **Precisão / wireframe / cotas**: uma peça ilustrativa alterna metal e wireframe enquanto linhas HTML de referência aparecem sobre a cena. As cotas usam `L` e `Ø` sem publicar números ou tolerâncias falsas.
+
+Arquivos principais:
+
+```text
+src/experience/ProceduralParts.js   modelos procedurais reutilizáveis
+src/experience/EngineeringCanvas.js renderer/câmera/luzes compartilhados
+src/experience/EngineeringStory.js  lifecycle, viewport, scroll e interação
+src/experience/engineeringState.js  matemática determinística das transições
+src/styles/engineering-3d.css       layout e overlays técnicos
+```
+
+A camada secundária respeita `prefers-reduced-motion`, limita DPR no mobile, não roda um loop contínuo sem necessidade, pausa quando a aba está oculta e mantém fallback visual se WebGL falhar. O painel administrativo continua sem importar Three.js.
+
+Os testes determinísticos cobrem também a progressão `bruto → intermediário → final` e a transição `metal → wireframe → metal`.
+
+## Revisão 3D — referências reais da FR
+
+A camada 3D secundária foi revisada para evitar repetição visual entre as seções e aproximar as formas das referências reais fornecidas da FR Usinagens:
+
+- estudo 01: eixo recuperado/estriado com áreas usinadas e trecho bruto;
+- estudo 02: bucha/luva flangeada com estrias internas;
+- estudo 03: peão/coroa cônica dentada;
+- processo: começa em tarugo cilíndrico bruto, passa por geometria intermediária e termina em eixo estriado;
+- precisão: usa uma bucha flangeada com furação e estrias internas, separada visualmente do eixo;
+- cada seção usa seu próprio canvas WebGL lazy-loaded, evitando que o estado/modelo de uma seção apareça na outra.
+
+O backend, painel administrativo, orçamento, D1/R2 e autenticação não foram alterados nesta revisão.

@@ -1,5 +1,6 @@
 import { mountFinalAssembly } from "./experience/FinalAssembly.js";
 import { mountMachiningExperience } from "./experience/MachiningExperience.js";
+import { mountEngineeringStory } from "./experience/EngineeringStory.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { setupQuoteForm } from "./ui/quoteForm.js";
 import { setupDynamicContent } from "./ui/dynamicContent.js";
@@ -99,9 +100,11 @@ let disposeComparisons = setupBeforeAfterComparisons();
 
 function mountScenes() {
   const primary = mountMachiningExperience(document.querySelector("#experiencia"));
+  const engineering = mountEngineeringStory(document);
   const result = mountFinalAssembly(document.querySelector("#result-canvas"));
   return () => {
     primary();
+    engineering();
     result();
   };
 }
