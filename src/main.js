@@ -2,11 +2,13 @@ import { mountFinalAssembly } from "./experience/FinalAssembly.js";
 import { mountMachiningExperience } from "./experience/MachiningExperience.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { setupQuoteForm } from "./ui/quoteForm.js";
+import { setupDynamicContent } from "./ui/dynamicContent.js";
 import { setupViewportEnvironment } from "./ui/viewport.js";
 
 const disposeViewport = setupViewportEnvironment();
 setupNavigation();
 setupQuoteForm();
+setupDynamicContent();
 
 document.querySelector("#year").textContent = new Date().getFullYear();
 

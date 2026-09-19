@@ -87,7 +87,7 @@ Fluxo de produção:
 5. anexos permitidos são guardados no R2 privado;
 6. é gerado um código público aleatório (`FR-XXXXXX`) e uma chave privada de acompanhamento;
 7. apenas a chave fica salva no navegador do cliente; o banco guarda somente o SHA-256 dela;
-8. o WhatsApp é aberto com os dados organizados e o código da solicitação;
+8. após o registro, o cliente recebe um botão para continuar no WhatsApp com os dados organizados e o código da solicitação;
 9. a consulta pública exige código + chave privada e expõe apenas status, atualização e observação pública.
 
 Limites atuais de upload: JPG, PNG, WEBP ou PDF; até 4 arquivos; 8 MB por arquivo; 20 MB no total. Esses mesmos limites existem no frontend e no backend.
@@ -237,3 +237,79 @@ src/admin.js                     lógica do painel
 src/styles/admin.css             visual do painel
 ```
 
+
+## Evolução do painel da oficina (v2)
+
+O painel administrativo agora foi separado em quatro áreas úteis: **Visão geral**, **Solicitações**, **Trabalhos** e **Antes × Depois**. Ele continua sendo uma ferramenta interna simples, sem virar ERP/financeiro/estoque.
+
+### Solicitações
+
+- visão geral com contagens reais por status;
+- lista com pesquisa por código, cliente, telefone e descrição;
+- filtros por status, tipo, presença de arquivo e arquivamento;
+- ordenação por entrada ou última atualização;
+- Kanban com drag and drop e confirmação antes de alterar status;
+- alternativa por select dentro do detalhe (o drag não é obrigatório);
+- notas públicas e internas separadas;
+- histórico preservado;
+- arquivamento sem apagar pedidos antigos;
+- galeria de anexos privados com visualização inline de imagens;
+- botão para iniciar uma conversa de WhatsApp sobre a solicitação.
+
+### Orçamento guiado
+
+O formulário público foi dividido em cinco etapas:
+
+1. necessidade;
+2. informações da peça;
+3. fotos/desenhos;
+4. contato;
+5. revisão.
+
+Campos técnicos continuam opcionais. O rascunho dos campos de texto fica salvo localmente por até sete dias para evitar perda acidental; arquivos não são guardados em `localStorage`. Depois do registro, a tela mostra código, acompanhamento e botão para continuar no WhatsApp.
+
+O acompanhamento público agora também retorna e exibe uma timeline do histórico da solicitação. O cliente continua vendo apenas informações seguras; notas internas nunca são retornadas pela rota pública.
+
+### Conteúdo administrável
+
+Foram adicionadas as tabelas `works`, `before_after_cases` e `site_media` na migration `migrations/0002_workshop_admin.sql`.
+
+O administrador pode cadastrar trabalhos e comparativos reais, manter como rascunho ou publicar. O site público consulta somente itens publicados. Nenhum conteúdo fictício é inserido pelas migrations.
+
+A mídia institucional usa um binding R2 separado:
+
+```text
+SITE_MEDIA
+```
+
+Isso mantém duas responsabilidades distintas:
+
+- `QUOTE_FILES`: arquivos privados enviados por clientes;
+- `SITE_MEDIA`: imagens institucionais publicadas pelo administrador.
+
+A rota pública `/api/media/:id` só entrega uma imagem quando ela está vinculada a um trabalho/comparativo publicado. O painel usa `/api/admin/media/:id`, que exige sessão administrativa.
+
+### Migrations atuais
+
+Aplique as migrations na ordem:
+
+```text
+migrations/0001_quotes.sql
+migrations/0002_workshop_admin.sql
+```
+
+A segunda migration adiciona `archived` e `city` às solicitações e cria as estruturas do conteúdo administrável.
+
+### Bindings Cloudflare atuais
+
+```text
+DB          -> D1
+QUOTE_FILES -> R2 privado dos anexos de clientes
+SITE_MEDIA  -> R2 das imagens institucionais
+```
+
+O exemplo em `wrangler.example.toml` documenta os três bindings.
+
+### Estruturas reservadas para a próxima etapa
+
+A migration `0002_workshop_admin.sql` também cria `services` e `capability_entries` **vazias e inativas**. Elas existem apenas para receber os serviços/capacidades reais quando o responsável da FR confirmar essas informações. O site e o painel não publicam dados dessas tabelas nesta versão, evitando inventar máquinas, materiais, limites ou serviços.

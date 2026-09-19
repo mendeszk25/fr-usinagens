@@ -18,7 +18,7 @@ export async function onRequest(context) {
   }
 
   const row = await env.DB.prepare(`
-    SELECT public_code, tracking_token_hash, status, public_note, created_at, updated_at
+    SELECT id, public_code, tracking_token_hash, status, public_note, created_at, updated_at
     FROM quote_requests WHERE public_code = ? LIMIT 1
   `).bind(code).first();
 
@@ -28,6 +28,11 @@ export async function onRequest(context) {
     return fail("not_found", "Solicitação não encontrada ou chave inválida.", 404);
   }
 
+  const history = await env.DB.prepare(`
+    SELECT status, public_note, created_at
+    FROM quote_status_history WHERE quote_id = ? ORDER BY created_at ASC
+  `).bind(row.id).all();
+
   return ok({
     public_code: row.public_code,
     status: row.status,
@@ -35,5 +40,12 @@ export async function onRequest(context) {
     public_note: row.public_note || "",
     created_at: row.created_at,
     updated_at: row.updated_at,
+    history: (history.results || []).map((entry) => ({
+      status: entry.status,
+      status_label: STATUS_LABELS[entry.status] || entry.status,
+      public_note: entry.public_note || "",
+      created_at: entry.created_at,
+    })),
+    status_labels: STATUS_LABELS,
   });
 }

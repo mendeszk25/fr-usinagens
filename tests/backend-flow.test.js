@@ -46,6 +46,7 @@ async function json(response) { return response.json(); }
 test("full quote lifecycle stores privately, tracks with token and updates through authenticated admin", async () => {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec(await readFile(new URL("../migrations/0001_quotes.sql", import.meta.url), "utf8"));
+  sqlite.exec(await readFile(new URL("../migrations/0002_workshop_admin.sql", import.meta.url), "utf8"));
   const env = {
     DB: new D1Mock(sqlite),
     QUOTE_FILES: new R2Mock(),
@@ -100,6 +101,8 @@ test("full quote lifecycle stores privately, tracks with token and updates throu
   const trackedAgainBody = await json(trackedAgain);
   assert.equal(trackedAgainBody.data.status, "reviewing");
   assert.equal(trackedAgainBody.data.public_note, "Peça em análise.");
+  assert.equal(trackedAgainBody.data.history.length, 2);
+  assert.equal(trackedAgainBody.data.history.at(-1).status, "reviewing");
 
   const fileRow = sqlite.prepare("SELECT id FROM quote_files LIMIT 1").get();
   const fileResponse = await adminFile({ request: req(`https://fr.example/api/admin/files/${fileRow.id}`, { headers: { cookie } }), env, params: { id: fileRow.id } });

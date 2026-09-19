@@ -36,10 +36,11 @@ export function setupNavigation() {
   };
   document.querySelectorAll("[data-service]").forEach((link) =>
     link.addEventListener("click", () => {
-      const select = document.querySelector("#service");
-      if (!select) return;
-      select.value = quoteTypeMap[link.dataset.service] || "Outro serviço";
-      select.dispatchEvent(new Event("change", { bubbles: true }));
+      const value = quoteTypeMap[link.dataset.service] || "Outro serviço";
+      const radio = [...document.querySelectorAll('input[name="service"]')].find((input) => input.value === value);
+      if (!radio) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
     }),
   );
 }

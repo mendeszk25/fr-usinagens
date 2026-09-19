@@ -60,6 +60,7 @@ export function validateQuoteFields(source) {
       customer_name: name,
       phone,
       company: nullable(value("company"), 140),
+      city: nullable(value("city"), 120),
       request_type: requestType,
       quantity,
       material: nullable(value("material"), 80) || "Não sei informar",
@@ -117,4 +118,21 @@ export function extensionFor(type) {
     "image/webp": "webp",
     "application/pdf": "pdf",
   })[type] || "bin";
+}
+
+
+export const CONTENT_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+export function validateContentImage(file) {
+  if (!(file instanceof File) || file.size <= 0) return "Selecione uma imagem válida.";
+  if (!CONTENT_IMAGE_TYPES.has(file.type)) return "Use uma imagem JPG, PNG ou WEBP.";
+  if (file.size > 10 * 1024 * 1024) return "A imagem deve ter no máximo 10 MB.";
+  const extension = String(file.name || "").split(".").pop()?.toLowerCase() || "";
+  const allowedExtensions = {
+    "image/jpeg": new Set(["jpg", "jpeg"]),
+    "image/png": new Set(["png"]),
+    "image/webp": new Set(["webp"]),
+  };
+  if (!allowedExtensions[file.type]?.has(extension)) return "A extensão não corresponde ao formato da imagem.";
+  return "";
 }

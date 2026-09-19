@@ -266,6 +266,7 @@
             <div class="work-editorial__meta"><span>REAL WORK / 06</span><h3>Engrenagens</h3><p>Componentes mecânicos produzidos e ajustados para uma aplicação de transmissão.</p></div>
           </article>
         </div>
+        <div class="dynamic-works" id="dynamic-works" hidden aria-label="Trabalhos publicados pelo painel"></div>
       </section>
 
       <section id="recuperacao" class="section repair-story repair-redesign">
@@ -312,6 +313,7 @@
           </div>
           <p class="repair-aside">PROBLEMAS REAIS.<br />SOLUÇÕES DE VERDADE.</p>
         </div>
+        <div class="dynamic-comparisons" id="dynamic-comparisons" hidden aria-label="Outros comparativos publicados"></div>
       </section>
 
       <section id="qualidade" class="section quality">
@@ -419,106 +421,104 @@
 
         <div class="quote-system" data-quote-system>
           <form id="quote-form" enctype="multipart/form-data" novalidate>
-            <div class="quote-form__header field-full">
-              <span class="quote-step">SOLICITAÇÃO / 01</span>
-              <strong>Informações principais</strong>
+            <div class="quote-wizard-head field-full">
+              <div>
+                <span class="quote-step" id="quote-progress-label">ETAPA 1 DE 5</span>
+                <strong id="quote-progress-title">O que você precisa?</strong>
+              </div>
+              <div class="quote-progress" aria-hidden="true"><i style="--progress:20%"></i></div>
             </div>
 
-            <label for="name">Seu nome
-              <input id="name" name="name" autocomplete="name" placeholder="Como podemos chamar você?" required maxlength="100" />
-            </label>
-            <label for="phone">WhatsApp / telefone
-              <input id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="(81) 9 0000-0000" required maxlength="30" />
-            </label>
-            <label for="company">Empresa <span>(opcional)</span>
-              <input id="company" name="company" autocomplete="organization" placeholder="Empresa ou oficina" maxlength="140" />
-            </label>
-            <label for="service">O que você precisa?
-              <select id="service" name="service" required>
-                <option value="Fabricar uma peça">Fabricar uma peça</option>
-                <option value="Recuperar uma peça">Recuperar uma peça</option>
-                <option value="Ajustar ou modificar uma peça">Ajustar ou modificar uma peça</option>
-                <option value="Avaliar uma peça">Tenho uma peça e preciso de avaliação</option>
-                <option value="Outro serviço">Outro / não sei informar</option>
-              </select>
-            </label>
-            <label for="quantity">Quantidade <span>(opcional)</span>
-              <input id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="10000" placeholder="Ex.: 2" />
-            </label>
-            <label for="material">Material <span>(se souber)</span>
-              <select id="material" name="material">
-                <option value="Não sei informar">Não sei informar</option>
-                <option value="Aço">Aço</option>
-                <option value="Alumínio">Alumínio</option>
-                <option value="Inox">Inox</option>
-                <option value="Bronze">Bronze</option>
-                <option value="Ferro">Ferro</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </label>
-
-            <fieldset class="field-full quote-dimensions">
-              <legend>Medidas <span>(opcional)</span></legend>
-              <div class="quote-dimensions__grid">
-                <label for="length">Comprimento<input id="length" name="length" inputmode="decimal" maxlength="40" placeholder="Ex.: 120 mm" /></label>
-                <label for="diameter">Diâmetro<input id="diameter" name="diameter" inputmode="decimal" maxlength="40" placeholder="Ex.: Ø 35 mm" /></label>
-                <label for="width">Outra medida<input id="width" name="width" inputmode="decimal" maxlength="40" placeholder="Ex.: 18 mm" /></label>
+            <section class="quote-wizard-step field-full is-active" data-quote-step="0" aria-labelledby="quote-step-title-1">
+              <div class="quote-step-intro">
+                <span>01</span>
+                <div><h4 id="quote-step-title-1">O que você precisa?</h4><p>Escolha a opção mais próxima. Se não souber, tudo bem.</p></div>
               </div>
-              <label class="quote-check" for="unknown-dimensions">
-                <input id="unknown-dimensions" name="unknown_dimensions" type="checkbox" value="1" />
-                <span>Não sei informar as medidas.</span>
-              </label>
-            </fieldset>
-
-            <label class="field-full" for="message">Explique a necessidade
-              <textarea id="message" name="message" rows="5" placeholder="Ex.: tenho uma peça quebrada e preciso saber se dá para recuperar ou fazer outra parecida" required minlength="10" maxlength="3000"></textarea>
-            </label>
-            <label class="field-full" for="urgency">Urgência
-              <select id="urgency" name="urgency">
-                <option value="Normal">Normal</option>
-                <option value="Tenho urgência">Tenho urgência</option>
-                <option value="Sem prazo definido">Não tenho prazo definido</option>
-              </select>
-            </label>
-
-            <div class="field-full quote-upload" data-upload-zone>
-              <div class="quote-upload__copy">
-                <span class="quote-step">SOLICITAÇÃO / 02</span>
-                <strong>Fotos ou desenho <small>(opcional)</small></strong>
-                <p>JPG, PNG, WEBP ou PDF. Até 4 arquivos; 8 MB por arquivo e 20 MB no total.</p>
+              <div class="quote-choice-grid" role="radiogroup" aria-label="Tipo de necessidade">
+                <label class="quote-choice"><input type="radio" name="service" value="Fabricar uma peça" required /><span><strong>FABRICAR UMA PEÇA</strong><small>Quero produzir uma peça nova.</small></span></label>
+                <label class="quote-choice"><input type="radio" name="service" value="Recuperar uma peça" /><span><strong>RECUPERAR UMA PEÇA</strong><small>Tenho uma peça danificada ou desgastada.</small></span></label>
+                <label class="quote-choice"><input type="radio" name="service" value="Ajustar ou modificar uma peça" /><span><strong>AJUSTAR / MODIFICAR</strong><small>Preciso alterar uma peça existente.</small></span></label>
+                <label class="quote-choice"><input type="radio" name="service" value="Avaliar uma peça" /><span><strong>PRECISO DE AVALIAÇÃO</strong><small>Tenho a peça, mas não sei qual serviço preciso.</small></span></label>
+                <label class="quote-choice"><input type="radio" name="service" value="Outro serviço" /><span><strong>NÃO SEI INFORMAR / OUTRO</strong><small>Explique do seu jeito na próxima etapa.</small></span></label>
               </div>
-              <label class="quote-upload__target" for="quote-files">
-                <input id="quote-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple />
-                <span aria-hidden="true">＋</span>
-                <strong>ESCOLHER ARQUIVOS</strong>
-                <small>ou arraste para esta área</small>
-              </label>
-              <ul class="quote-upload__list" id="quote-file-list" aria-live="polite"></ul>
-            </div>
+              <div class="quote-wizard-actions"><span></span><button type="button" class="button button-primary" data-quote-next>CONTINUAR <span aria-hidden="true">→</span></button></div>
+            </section>
 
-            <div class="field-full quote-summary" id="quote-summary" aria-live="polite">
-              <div class="quote-summary__head"><span class="quote-step">SOLICITAÇÃO / 03</span><strong>Resumo</strong></div>
-              <dl>
+            <section class="quote-wizard-step field-full" data-quote-step="1" aria-labelledby="quote-step-title-2" hidden>
+              <div class="quote-step-intro">
+                <span>02</span>
+                <div><h4 id="quote-step-title-2">Sobre a peça</h4><p>Informe apenas o que souber. Os campos técnicos são opcionais.</p></div>
+              </div>
+              <div class="quote-fields-grid">
+                <label for="quantity">Quantidade <span>(opcional)</span><input id="quantity" name="quantity" type="number" inputmode="numeric" min="1" max="10000" placeholder="Ex.: 2" /></label>
+                <label for="material">Material <span>(se souber)</span><select id="material" name="material"><option value="Não sei informar">Não sei informar</option><option value="Aço">Aço</option><option value="Alumínio">Alumínio</option><option value="Inox">Inox</option><option value="Bronze">Bronze</option><option value="Ferro">Ferro</option><option value="Outro">Outro</option></select></label>
+                <label class="field-full" for="urgency">Urgência <select id="urgency" name="urgency"><option value="Normal">Normal</option><option value="Tenho urgência">Tenho urgência</option><option value="Sem prazo definido">Não tenho prazo definido</option></select></label>
+              </div>
+              <fieldset class="quote-dimensions">
+                <legend>Medidas <span>(opcional)</span></legend>
+                <div class="quote-dimensions__grid">
+                  <label for="length">Comprimento<input id="length" name="length" inputmode="decimal" maxlength="40" placeholder="Ex.: 120 mm" /></label>
+                  <label for="diameter">Diâmetro<input id="diameter" name="diameter" inputmode="decimal" maxlength="40" placeholder="Ex.: Ø 35 mm" /></label>
+                  <label for="width">Outra medida<input id="width" name="width" inputmode="decimal" maxlength="40" placeholder="Ex.: 18 mm" /></label>
+                </div>
+                <label class="quote-check" for="unknown-dimensions"><input id="unknown-dimensions" name="unknown_dimensions" type="checkbox" value="1" /><span>Não sei informar as medidas.</span></label>
+              </fieldset>
+              <label class="field-full" for="message">Explique a necessidade<textarea id="message" name="message" rows="5" placeholder="Ex.: tenho uma peça quebrada e preciso saber se dá para recuperar ou fazer outra parecida" required minlength="10" maxlength="3000"></textarea></label>
+              <div class="quote-wizard-actions"><button type="button" class="button button-outline" data-quote-prev>← VOLTAR</button><button type="button" class="button button-primary" data-quote-next>CONTINUAR <span aria-hidden="true">→</span></button></div>
+            </section>
+
+            <section class="quote-wizard-step field-full" data-quote-step="2" aria-labelledby="quote-step-title-3" hidden>
+              <div class="quote-step-intro"><span>03</span><div><h4 id="quote-step-title-3">Mostre a peça para a gente</h4><p>Fotos e desenhos ajudam na análise. Esta etapa é opcional.</p></div></div>
+              <div class="quote-photo-guide" aria-label="Como fotografar a peça">
+                <article><b>01</b><strong>FOTO GERAL</strong><p>Mostre a peça inteira.</p></article>
+                <article><b>02</b><strong>DETALHE</strong><p>Mostre a região danificada ou que precisa de alteração.</p></article>
+                <article><b>03</b><strong>MEDIDA</strong><p>Se possível, coloque régua, trena ou referência de tamanho.</p></article>
+                <article><b>04</b><strong>DESENHO</strong><p>Você também pode enviar desenho ou PDF.</p></article>
+              </div>
+              <div class="quote-upload" data-upload-zone>
+                <div class="quote-upload__copy"><strong>Fotos ou desenho <small>(opcional)</small></strong><p>JPG, PNG, WEBP ou PDF. Até 4 arquivos; 8 MB por arquivo e 20 MB no total.</p></div>
+                <label class="quote-upload__target" for="quote-files"><input id="quote-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple /><span aria-hidden="true">＋</span><strong>ESCOLHER ARQUIVOS</strong><small>ou arraste para esta área</small></label>
+                <ul class="quote-upload__list" id="quote-file-list" aria-live="polite"></ul>
+              </div>
+              <div class="quote-wizard-actions"><button type="button" class="button button-outline" data-quote-prev>← VOLTAR</button><button type="button" class="button button-primary" data-quote-next>CONTINUAR <span aria-hidden="true">→</span></button></div>
+            </section>
+
+            <section class="quote-wizard-step field-full" data-quote-step="3" aria-labelledby="quote-step-title-4" hidden>
+              <div class="quote-step-intro"><span>04</span><div><h4 id="quote-step-title-4">Como a FR fala com você?</h4><p>Só pedimos os dados necessários para continuar o atendimento.</p></div></div>
+              <div class="quote-fields-grid">
+                <label for="name">Seu nome<input id="name" name="name" autocomplete="name" placeholder="Como podemos chamar você?" required maxlength="100" /></label>
+                <label for="phone">WhatsApp / telefone<input id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="(81) 9 0000-0000" required maxlength="30" /></label>
+                <label for="city">Cidade <span>(opcional)</span><input id="city" name="city" autocomplete="address-level2" placeholder="Ex.: Gravatá" maxlength="120" /></label>
+                <label for="company">Empresa <span>(opcional)</span><input id="company" name="company" autocomplete="organization" placeholder="Empresa ou oficina" maxlength="140" /></label>
+              </div>
+              <div class="quote-wizard-actions"><button type="button" class="button button-outline" data-quote-prev>← VOLTAR</button><button type="button" class="button button-primary" data-quote-next>REVISAR SOLICITAÇÃO <span aria-hidden="true">→</span></button></div>
+            </section>
+
+            <section class="quote-wizard-step field-full" data-quote-step="4" aria-labelledby="quote-step-title-5" hidden>
+              <div class="quote-step-intro"><span>05</span><div><h4 id="quote-step-title-5">Confira sua solicitação</h4><p>Revise antes de enviar. Você pode voltar e alterar qualquer informação.</p></div></div>
+              <div class="quote-summary" id="quote-summary" aria-live="polite"><dl>
                 <div><dt>Tipo</dt><dd data-summary="service">—</dd></div>
                 <div><dt>Quantidade</dt><dd data-summary="quantity">Não informada</dd></div>
                 <div><dt>Material</dt><dd data-summary="material">Não sei informar</dd></div>
                 <div><dt>Medidas</dt><dd data-summary="dimensions">Não informadas</dd></div>
-                <div><dt>Arquivos</dt><dd data-summary="files">Nenhum</dd></div>
                 <div><dt>Urgência</dt><dd data-summary="urgency">Normal</dd></div>
-              </dl>
-            </div>
-
-            <button class="button button-whatsapp field-full" id="quote-submit" type="submit">
-              <span class="button-label">REGISTRAR E CONTINUAR NO WHATSAPP</span><span aria-hidden="true">↗</span>
-            </button>
-            <p class="form-note">Se o registro online estiver disponível, sua solicitação será salva antes de abrir o WhatsApp. Se não estiver, o site avisará claramente e abrirá somente a mensagem. Use os campos apenas para informações necessárias ao orçamento e evite anexar documentos pessoais.</p>
-            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+                <div><dt>Arquivos</dt><dd data-summary="files">Nenhum</dd></div>
+                <div><dt>Contato</dt><dd data-summary="contact">—</dd></div>
+                <div><dt>Cidade</dt><dd data-summary="city">Não informada</dd></div>
+                <div class="quote-summary__wide"><dt>Descrição</dt><dd data-summary="description">—</dd></div>
+              </dl></div>
+              <div class="quote-wizard-actions"><button type="button" class="button button-outline" data-quote-prev>← EDITAR</button><button class="button button-whatsapp" id="quote-submit" type="submit"><span class="button-label">ENVIAR SOLICITAÇÃO</span><span aria-hidden="true">↗</span></button></div>
+              <p class="form-note">Sua solicitação só será considerada registrada quando o site exibir um código. Arquivos enviados permanecem privados para a oficina.</p>
+              <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+              <a class="button button-outline quote-fallback-whatsapp" id="fallback-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden>CONTINUAR SOMENTE PELO WHATSAPP ↗</a>
+            </section>
 
             <div class="quote-success field-full" id="quote-success" hidden>
-              <span class="quote-success__eyebrow">SOLICITAÇÃO REGISTRADA</span>
+              <span class="quote-success__eyebrow">SOLICITAÇÃO RECEBIDA</span>
               <strong id="quote-success-code">—</strong>
-              <p>Guarde este código. Neste navegador, a chave privada de acompanhamento fica salva automaticamente.</p>
-              <div><button type="button" class="button button-outline" id="copy-quote-code">COPIAR CÓDIGO</button><a class="button button-primary" href="#acompanhar">ACOMPANHAR SOLICITAÇÃO</a></div>
+              <p>Sua solicitação foi registrada. Guarde o código; neste navegador a chave privada de acompanhamento fica salva automaticamente.</p>
+              <div><button type="button" class="button button-outline" id="copy-quote-code">COPIAR CÓDIGO</button><a class="button button-outline" href="#acompanhar">ACOMPANHAR SOLICITAÇÃO</a><a class="button button-primary" id="success-whatsapp" href="#" target="_blank" rel="noopener noreferrer">CONTINUAR NO WHATSAPP ↗</a></div>
+              <button type="button" class="quote-new-request" id="new-quote-request">FAZER NOVA SOLICITAÇÃO</button>
             </div>
           </form>
         </div>
@@ -538,8 +538,10 @@
           <div class="tracking-result" id="tracking-result" hidden aria-live="polite">
             <div><span>CÓDIGO</span><strong data-track="code">—</strong></div>
             <div><span>STATUS</span><strong data-track="status">—</strong></div>
+            <div><span>CRIADA</span><strong data-track="created">—</strong></div>
             <div><span>ATUALIZADO</span><strong data-track="updated">—</strong></div>
             <p data-track="note"></p>
+            <div class="tracking-timeline" data-track="timeline"></div>
           </div>
           <p class="form-status" id="tracking-status" role="status" aria-live="polite"></p>
         </aside>

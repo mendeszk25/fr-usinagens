@@ -5,50 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#080a0b" />
-    <title>FR Usinagens · Painel</title>
+    <title>FR Usinagens · Painel da Oficina</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script type="module" src="/src/admin.js"></script>
   </head>
   <body class="admin-body">
-    <main class="admin-shell">
-      <header class="admin-header">
-        <a href="/" class="admin-brand"><strong>FR</strong><span>USINAGENS<small>PAINEL DE SOLICITAÇÕES</small></span></a>
-        <button type="button" class="admin-link" id="admin-logout" hidden>SAIR</button>
-      </header>
-
-      <section class="admin-login" id="admin-login">
+    <section class="admin-login" id="admin-login">
+      <div class="admin-login__brand"><strong>FR</strong><span>USINAGENS<small>PAINEL DA OFICINA</small></span></div>
+      <div class="admin-login__panel">
         <p class="admin-eyebrow">ACESSO RESTRITO</p>
-        <h1>PAINEL<br /><span>ADMINISTRATIVO.</span></h1>
-        <p>A senha não fica embutida no frontend. O acesso é validado pelo backend e a sessão é armazenada em cookie HttpOnly.</p>
+        <h1>OFICINA<br /><span>ORGANIZADA.</span></h1>
+        <p>Solicitações, andamento dos serviços e conteúdo publicado em um só lugar.</p>
         <form id="admin-login-form">
           <label for="admin-password">Senha administrativa<input id="admin-password" type="password" autocomplete="current-password" required /></label>
           <button type="submit" class="admin-button">ENTRAR <span>↗</span></button>
         </form>
         <p class="admin-status" id="admin-login-status" role="status"></p>
-      </section>
+      </div>
+    </section>
 
-      <section class="admin-dashboard" id="admin-dashboard" hidden>
-        <div class="admin-dashboard__head">
-          <div><p class="admin-eyebrow">SOLICITAÇÕES</p><h1>ENTRADAS<br /><span>DA OFICINA.</span></h1></div>
-          <div class="admin-filters">
-            <input id="admin-search" type="search" placeholder="Código, nome ou telefone" />
-            <select id="admin-status-filter"><option value="">Todos os status</option></select>
+    <div class="admin-app" id="admin-app" hidden>
+      <aside class="admin-sidebar">
+        <a href="/" class="admin-brand"><strong>FR</strong><span>USINAGENS<small>PAINEL DA OFICINA</small></span></a>
+        <nav aria-label="Navegação administrativa">
+          <button class="is-active" data-admin-view="overview"><span>01</span>VISÃO GERAL</button>
+          <button data-admin-view="requests"><span>02</span>SOLICITAÇÕES</button>
+          <button data-admin-view="works"><span>03</span>TRABALHOS</button>
+          <button data-admin-view="comparisons"><span>04</span>ANTES × DEPOIS</button>
+        </nav>
+        <div class="admin-sidebar__foot"><a href="/" target="_blank" rel="noopener">VER SITE ↗</a><button type="button" id="admin-logout">SAIR</button></div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-mobile-head"><button id="admin-menu" type="button" aria-label="Abrir menu">☰</button><strong>FR / PAINEL</strong><button type="button" id="admin-mobile-logout">SAIR</button></header>
+
+        <section class="admin-view is-active" data-view-panel="overview">
+          <div class="admin-page-head"><div><p class="admin-eyebrow">VISÃO GERAL</p><h1>RITMO<br /><span>DA OFICINA.</span></h1></div><p>Dados reais das solicitações registradas no site.</p></div>
+          <div class="admin-metrics" id="admin-metrics" aria-live="polite"></div>
+          <div class="admin-overview-grid">
+            <section class="admin-panel"><div class="admin-panel__head"><h2>ÚLTIMAS SOLICITAÇÕES</h2><button data-go-view="requests">VER TODAS →</button></div><div id="admin-recent" class="admin-recent"></div></section>
+            <section class="admin-panel"><div class="admin-panel__head"><h2>ATIVIDADE RECENTE</h2></div><div id="admin-activity" class="admin-activity"></div></section>
           </div>
-        </div>
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead><tr><th>Código</th><th>Cliente</th><th>Necessidade</th><th>Status</th><th>Entrada</th></tr></thead>
-            <tbody id="admin-list"></tbody>
-          </table>
-        </div>
-        <div class="admin-pagination"><button id="admin-prev" type="button">← ANTERIOR</button><span id="admin-page">—</span><button id="admin-next" type="button">PRÓXIMA →</button></div>
-        <p class="admin-status" id="admin-list-status" role="status"></p>
-      </section>
-    </main>
+          <p class="admin-status" id="admin-overview-status" role="status"></p>
+        </section>
 
-    <dialog class="admin-dialog" id="admin-dialog">
-      <form method="dialog" class="admin-dialog__top"><span>DETALHES DA SOLICITAÇÃO</span><button aria-label="Fechar">×</button></form>
-      <div id="admin-detail"></div>
-    </dialog>
+        <section class="admin-view" data-view-panel="requests" hidden>
+          <div class="admin-page-head"><div><p class="admin-eyebrow">SOLICITAÇÕES</p><h1>ENTRADAS<br /><span>DA OFICINA.</span></h1></div><div class="admin-view-switch"><button class="is-active" data-request-mode="list">LISTA</button><button data-request-mode="kanban">KANBAN</button></div></div>
+          <div class="admin-filterbar">
+            <input id="admin-search" type="search" placeholder="Código, cliente, telefone ou descrição" />
+            <select id="admin-status-filter"><option value="">Todos os status</option></select>
+            <select id="admin-type-filter"><option value="">Todos os tipos</option></select>
+            <select id="admin-file-filter"><option value="">Com ou sem arquivo</option><option value="with">Com arquivo</option><option value="without">Sem arquivo</option></select>
+            <select id="admin-archive-filter"><option value="active">Ativos</option><option value="archived">Arquivados</option><option value="all">Todos</option></select>
+            <select id="admin-order"><option value="recent">Mais recentes</option><option value="oldest">Mais antigos</option><option value="updated">Última atualização</option></select>
+          </div>
+          <div class="admin-table-wrap" id="admin-list-view"><table class="admin-table"><thead><tr><th>Código</th><th>Cliente</th><th>Necessidade</th><th>Arquivos</th><th>Status</th><th>Atualização</th></tr></thead><tbody id="admin-list"></tbody></table></div>
+          <div class="admin-kanban" id="admin-kanban" hidden></div>
+          <div class="admin-pagination" id="admin-pagination"><button id="admin-prev" type="button">← ANTERIOR</button><span id="admin-page">—</span><button id="admin-next" type="button">PRÓXIMA →</button></div>
+          <p class="admin-status" id="admin-list-status" role="status"></p>
+        </section>
+
+        <section class="admin-view" data-view-panel="works" hidden>
+          <div class="admin-page-head"><div><p class="admin-eyebrow">CONTEÚDO DO SITE</p><h1>TRABALHOS<br /><span>PUBLICADOS.</span></h1></div><p>Cadastre apenas trabalhos reais da FR. Publicados aparecem no site sem novo deploy.</p></div>
+          <div class="admin-content-grid">
+            <form class="admin-editor" id="work-form">
+              <input type="hidden" name="id" /><input type="hidden" name="image_file_id" />
+              <div class="admin-editor__head"><h2 id="work-form-title">NOVO TRABALHO</h2><button type="button" class="admin-text-button" data-reset-form="work">LIMPAR</button></div>
+              <label>Título<input name="title" maxlength="140" required /></label>
+              <label>Categoria<input name="category" maxlength="100" placeholder="Ex.: recuperação" /></label>
+              <label>Descrição<textarea name="description" maxlength="800" rows="4"></textarea></label>
+              <label>Imagem <span>(JPG, PNG ou WEBP)</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              <label>Ordem<input name="sort_order" type="number" value="0" /></label>
+              <label class="admin-check"><input name="published" type="checkbox" /> <span>Publicado no site</span></label>
+              <div class="admin-media-preview" id="work-preview"></div>
+              <button class="admin-button" type="submit">SALVAR TRABALHO <span>↗</span></button><p class="admin-status" id="work-status" role="status"></p>
+            </form>
+            <section class="admin-panel"><div class="admin-panel__head"><h2>CADASTRADOS</h2></div><div class="admin-content-list" id="work-list"></div></section>
+          </div>
+        </section>
+
+        <section class="admin-view" data-view-panel="comparisons" hidden>
+          <div class="admin-page-head"><div><p class="admin-eyebrow">CONTEÚDO DO SITE</p><h1>ANTES<br /><span>× DEPOIS.</span></h1></div><p>Cadastre comparativos reais para usar o slider interativo do site.</p></div>
+          <div class="admin-content-grid">
+            <form class="admin-editor" id="comparison-form">
+              <input type="hidden" name="id" /><input type="hidden" name="before_file_id" /><input type="hidden" name="after_file_id" />
+              <div class="admin-editor__head"><h2 id="comparison-form-title">NOVO COMPARATIVO</h2><button type="button" class="admin-text-button" data-reset-form="comparison">LIMPAR</button></div>
+              <label>Título<input name="title" maxlength="140" required /></label>
+              <label>Descrição<textarea name="description" maxlength="800" rows="4"></textarea></label>
+              <label>Imagem antes<input name="before_image" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              <label>Imagem depois<input name="after_image" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              <label>Ordem<input name="sort_order" type="number" value="0" /></label>
+              <label class="admin-check"><input name="published" type="checkbox" /> <span>Publicado no site</span></label>
+              <div class="admin-media-preview admin-media-preview--pair" id="comparison-preview"></div>
+              <button class="admin-button" type="submit">SALVAR COMPARATIVO <span>↗</span></button><p class="admin-status" id="comparison-status" role="status"></p>
+            </form>
+            <section class="admin-panel"><div class="admin-panel__head"><h2>CADASTRADOS</h2></div><div class="admin-content-list" id="comparison-list"></div></section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="admin-dialog" id="admin-dialog"><form method="dialog" class="admin-dialog__top"><span>DETALHES DA SOLICITAÇÃO</span><button aria-label="Fechar">×</button></form><div id="admin-detail"></div></dialog>
+    <dialog class="admin-confirm" id="admin-confirm"><div><p class="admin-eyebrow">CONFIRMAR AÇÃO</p><h2 id="admin-confirm-title">Confirmar?</h2><p id="admin-confirm-copy"></p><div><button type="button" class="admin-text-button" id="admin-confirm-cancel">CANCELAR</button><button type="button" class="admin-button" id="admin-confirm-ok">CONFIRMAR</button></div></div></dialog>
+    <dialog class="admin-lightbox" id="admin-lightbox"><button type="button" id="admin-lightbox-close" aria-label="Fechar">×</button><img id="admin-lightbox-image" alt="Visualização do arquivo" /></dialog>
   </body>
 </html>

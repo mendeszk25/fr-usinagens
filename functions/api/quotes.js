@@ -89,10 +89,10 @@ export async function onRequest(context) {
     const statements = [
       env.DB.prepare(`
         INSERT INTO quote_requests (
-          id, public_code, tracking_token_hash, customer_name, phone, company,
+          id, public_code, tracking_token_hash, customer_name, phone, company, city,
           request_type, quantity, material, dimensions_json, description, urgency,
           status, public_note, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received', NULL, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'received', NULL, ?, ?)
       `).bind(
         id,
         publicCode,
@@ -100,6 +100,7 @@ export async function onRequest(context) {
         quote.customer_name,
         quote.phone,
         quote.company,
+        quote.city,
         quote.request_type,
         quote.quantity,
         quote.material,

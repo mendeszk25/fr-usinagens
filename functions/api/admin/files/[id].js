@@ -16,7 +16,7 @@ export async function onRequest(context) {
   return new Response(object.body, {
     headers: {
       "content-type": row.mime_type || object.httpMetadata?.contentType || "application/octet-stream",
-      "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(row.original_name)}`,
+      "content-disposition": `${String(row.mime_type || "").startsWith("image/") ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(row.original_name)}`,
       "cache-control": "private, no-store",
       "x-content-type-options": "nosniff",
     },

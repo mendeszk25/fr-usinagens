@@ -1,11 +1,11 @@
 import { ok, fail, methodNotAllowed } from "../../../_lib/http.js";
 import { isAdmin } from "../../../_lib/adminAuth.js";
-import { ALLOWED_STATUSES, STATUS_LABELS } from "../../../_lib/validation.js";
+import { STATUS_LABELS, ALLOWED_STATUSES } from "../../../_lib/validation.js";
 
 async function getQuote(env, id) {
   const quote = await env.DB.prepare(`
-    SELECT id, public_code, customer_name, phone, company, request_type, quantity, material,
-           dimensions_json, description, urgency, status, public_note, internal_note, created_at, updated_at
+    SELECT id, public_code, customer_name, phone, company, city, request_type, quantity, material,
+           dimensions_json, description, urgency, status, public_note, internal_note, archived, created_at, updated_at
     FROM quote_requests WHERE id = ? LIMIT 1
   `).bind(id).first();
   if (!quote) return null;
@@ -15,6 +15,7 @@ async function getQuote(env, id) {
   ]);
   return {
     ...quote,
+    archived: Boolean(quote.archived),
     dimensions: JSON.parse(quote.dimensions_json || "{}"),
     dimensions_json: undefined,
     status_label: STATUS_LABELS[quote.status] || quote.status,
@@ -37,29 +38,29 @@ export async function onRequest(context) {
 
   if (request.method === "PATCH") {
     let body;
-    try {
-      body = await request.json();
-    } catch {
-      return fail("invalid_json", "Dados inválidos.", 400);
+    try { body = await request.json(); } catch { return fail("invalid_json", "Dados inválidos.", 400); }
+
+    const existing = await env.DB.prepare("SELECT status, public_note, internal_note, archived, updated_at FROM quote_requests WHERE id = ? LIMIT 1").bind(id).first();
+    if (!existing) return fail("not_found", "Solicitação não encontrada.", 404);
+
+    const requestedStatus = body?.status === undefined ? existing.status : String(body.status || "").trim();
+    if (!ALLOWED_STATUSES.has(requestedStatus)) return fail("invalid_status", "Status inválido.", 400);
+    const publicNote = body?.public_note === undefined ? existing.public_note : (String(body.public_note || "").replace(/\u0000/g, "").trim().slice(0, 1000) || null);
+    const internalNote = body?.internal_note === undefined ? existing.internal_note : (String(body.internal_note || "").replace(/\u0000/g, "").trim().slice(0, 3000) || null);
+    const archived = body?.archived === undefined ? Number(existing.archived || 0) : (body.archived ? 1 : 0);
+    const expectedUpdatedAt = String(body?.expected_updated_at || "").trim();
+    if (expectedUpdatedAt && expectedUpdatedAt !== existing.updated_at) {
+      return fail("conflict", "Esta solicitação foi alterada em outra janela. Recarregue antes de salvar.", 409);
     }
 
-    const status = String(body?.status || "").trim();
-    const publicNote = String(body?.public_note || "").replace(/\u0000/g, "").trim().slice(0, 1000) || null;
-    const internalNote = String(body?.internal_note || "").replace(/\u0000/g, "").trim().slice(0, 3000) || null;
-    if (!ALLOWED_STATUSES.has(status)) return fail("invalid_status", "Status inválido.", 400);
-
-    const existing = await env.DB.prepare("SELECT status, public_note FROM quote_requests WHERE id = ? LIMIT 1").bind(id).first();
-    if (!existing) return fail("not_found", "Solicitação não encontrada.", 404);
     const now = new Date().toISOString();
     const statements = [
-      env.DB.prepare(`UPDATE quote_requests SET status = ?, public_note = ?, internal_note = ?, updated_at = ? WHERE id = ?`)
-        .bind(status, publicNote, internalNote, now, id),
+      env.DB.prepare(`UPDATE quote_requests SET status = ?, public_note = ?, internal_note = ?, archived = ?, updated_at = ? WHERE id = ?`)
+        .bind(requestedStatus, publicNote, internalNote, archived, now, id),
     ];
-    if (existing.status !== status || (existing.public_note || null) !== publicNote) {
-      statements.push(
-        env.DB.prepare(`INSERT INTO quote_status_history (id, quote_id, status, public_note, created_at) VALUES (?, ?, ?, ?, ?)`)
-          .bind(crypto.randomUUID(), id, status, publicNote, now),
-      );
+    if (existing.status !== requestedStatus || (existing.public_note || null) !== publicNote) {
+      statements.push(env.DB.prepare(`INSERT INTO quote_status_history (id, quote_id, status, public_note, created_at) VALUES (?, ?, ?, ?, ?)`)
+        .bind(crypto.randomUUID(), id, requestedStatus, publicNote, now));
     }
     await env.DB.batch(statements);
     const quote = await getQuote(env, id);
