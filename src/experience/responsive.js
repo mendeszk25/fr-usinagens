@@ -59,8 +59,8 @@ export function getViewportProfile(width, height, out = {}) {
 
 const MOBILE_TIERS = Object.freeze({
   "mobile-high": {
-    dprCapPortrait: 1.6,
-    dprCapLandscape: 1.45,
+    dprCapPortrait: 1.9,
+    dprCapLandscape: 1.68,
     shadowMapSize: 512,
     antialias: true,
     lowDetail: false,
@@ -68,8 +68,8 @@ const MOBILE_TIERS = Object.freeze({
     materialDetail: "high",
   },
   "mobile-balanced": {
-    dprCapPortrait: 1.4,
-    dprCapLandscape: 1.28,
+    dprCapPortrait: 1.65,
+    dprCapLandscape: 1.48,
     shadowMapSize: 512,
     antialias: true,
     lowDetail: false,
@@ -77,8 +77,8 @@ const MOBILE_TIERS = Object.freeze({
     materialDetail: "balanced",
   },
   "mobile-low": {
-    dprCapPortrait: 1.12,
-    dprCapLandscape: 1.05,
+    dprCapPortrait: 1.22,
+    dprCapLandscape: 1.12,
     shadowMapSize: 512,
     antialias: true,
     lowDetail: true,
@@ -138,7 +138,11 @@ export function getRenderProfile(viewport, env = {}) {
   const mobile = viewport.mobile || coarse;
 
   if (mobile) {
-    const requestedTier = env.qualityTier || (constrained ? "mobile-low" : "mobile-balanced");
+    // Modern iPhones and comparable phones should not start from a deliberately
+    // soft render. Safari does not expose deviceMemory, so core count is the
+    // most useful conservative hint before the runtime frame sampler takes over.
+    const capableMobile = !constrained && cores >= 6;
+    const requestedTier = env.qualityTier || (constrained ? "mobile-low" : capableMobile ? "mobile-high" : "mobile-balanced");
     return {
       ...getMobileTierSettings(requestedTier, viewport),
       constrained,

@@ -150,7 +150,7 @@ export function mountMachiningExperience(section) {
       stage.dataset.motionMode = motionMode;
       toggle.setAttribute("aria-pressed", String(value));
       toggle.disabled = false;
-      toggle.textContent = value ? "Retomar experiência 3D ↗" : "Vista estática ↗";
+      toggle.textContent = value ? "Retomar experiência 3D" : "Vista estática";
       toggle.setAttribute(
         "aria-label",
         value

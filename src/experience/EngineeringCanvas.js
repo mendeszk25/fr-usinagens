@@ -7,7 +7,7 @@ import {
   disposeStudy,
 } from "./ProceduralParts.js";
 import { modelMeta } from "./MechanicalModelRegistry.js";
-import { getViewportProfile } from "./responsive.js";
+import { browserEnvironment, getRenderProfile, getViewportProfile } from "./responsive.js";
 import { clamp01, getPrecisionVisualState, getProcessVisualState } from "./engineeringState.js";
 
 function prepareStudy(study, targetSize = 4.3) {
@@ -38,14 +38,15 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
   const instanceMode = requestedMode || host.dataset.engineering3d || "components";
   const modelId = suppliedModelId || host.dataset.modelId || (instanceMode === "process" ? "gearShaft" : instanceMode === "precision" ? "industrialAssembly" : "threadedPin");
   const profile = getViewportProfile(host.clientWidth || innerWidth, host.clientHeight || innerHeight);
+  const initialQuality = getRenderProfile(profile, browserEnvironment());
   const renderer = new THREE.WebGLRenderer({
-    antialias: !profile.mobile,
+    antialias: true,
     alpha: true,
-    powerPreference: profile.mobile ? "default" : "high-performance",
+    powerPreference: initialQuality.constrained ? "default" : "high-performance",
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = profile.mobile ? 0.90 : 0.86;
+  renderer.toneMappingExposure = profile.mobile ? 0.98 : 0.86;
   renderer.setClearColor(0x080a0b, 0);
   renderer.shadowMap.enabled = !profile.mobile;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -60,7 +61,7 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
   scene.environment = environment.texture;
   pmrem.dispose();
 
-  const key = new THREE.DirectionalLight("#f0f2ef", 1.18);
+  const key = new THREE.DirectionalLight("#f0f2ef", profile.mobile ? 1.30 : 1.18);
   key.position.set(-4.8, 6.8, 6.2);
   key.castShadow = !profile.mobile;
   key.shadow.mapSize.set(1024, 1024);
@@ -69,11 +70,11 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
   key.shadow.camera.top = 6;
   key.shadow.camera.bottom = -6;
   key.shadow.camera.far = 24;
-  const rim = new THREE.DirectionalLight("#a7bac2", 0.72);
+  const rim = new THREE.DirectionalLight("#a7bac2", profile.mobile ? 0.84 : 0.72);
   rim.position.set(5.4, 2.8, -6.2);
-  const side = new THREE.DirectionalLight("#6f7a80", 0.34);
+  const side = new THREE.DirectionalLight("#77858c", profile.mobile ? 0.42 : 0.34);
   side.position.set(1.5, -1.0, 5.5);
-  const fill = new THREE.HemisphereLight("#9aa6ab", "#050708", 0.20);
+  const fill = new THREE.HemisphereLight("#9aa6ab", "#050708", profile.mobile ? 0.24 : 0.20);
   scene.add(key, rim, side, fill);
 
   const groundMaterial = new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.17 });
@@ -84,7 +85,7 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
   ground.receiveShadow = !profile.mobile;
   scene.add(ground);
 
-  const qualityDetail = profile.mobile ? "balanced" : "high";
+  const qualityDetail = initialQuality.materialDetail === "high" ? "high" : "balanced";
   const studies = {};
   if (instanceMode === "components") {
     studies.component = prepareStudy(createMechanicalStudy(modelId, { detail: qualityDetail }), 4.55);
@@ -110,7 +111,8 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
     width = Math.max(1, Math.round(host.clientWidth));
     height = Math.max(1, Math.round(host.clientHeight));
     const viewport = getViewportProfile(width, height);
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, viewport.mobile ? 1.35 : 1.9));
+    const renderQuality = getRenderProfile(viewport, browserEnvironment());
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, viewport.mobile ? renderQuality.dprCap : 1.9));
     renderer.setSize(width, height, false);
     renderer.shadowMap.enabled = !viewport.mobile;
     key.castShadow = !viewport.mobile;
@@ -127,13 +129,13 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
     const targetRotation = reducedMotion ? 0.02 : pointerX * 0.13 + manualRotation + progress * 0.12;
     study.group.rotation.y += (targetRotation - study.group.rotation.y) * 0.16;
     study.group.rotation.x += ((-0.05 + pointerY * 0.035) - study.group.rotation.x) * 0.16;
-    study.group.scale.setScalar(study.fitScale * (mobile ? 0.80 : 1));
+    study.group.scale.setScalar(study.fitScale * (mobile ? 1.00 : 1));
     study.group.position.set(0, meta.cameraPreset === "block" ? -0.08 : -0.02, 0);
 
-    camera.fov = mobile ? 38 : meta.cameraPreset === "block" ? 30 : 31;
-    if (meta.cameraPreset === "long") camera.position.set(mobile ? 5.7 : 4.9, mobile ? 2.35 : 1.95, mobile ? 8.8 : 7.7);
-    else if (meta.cameraPreset === "block") camera.position.set(mobile ? 5.2 : 4.35, mobile ? 2.85 : 2.30, mobile ? 7.9 : 6.75);
-    else camera.position.set(mobile ? 5.0 : 4.05, mobile ? 2.55 : 2.05, mobile ? 7.7 : 6.45);
+    camera.fov = mobile ? 34 : meta.cameraPreset === "block" ? 30 : 31;
+    if (meta.cameraPreset === "long") camera.position.set(mobile ? 4.95 : 4.9, mobile ? 2.12 : 1.95, mobile ? 7.15 : 7.7);
+    else if (meta.cameraPreset === "block") camera.position.set(mobile ? 4.60 : 4.35, mobile ? 2.40 : 2.30, mobile ? 6.95 : 6.75);
+    else camera.position.set(mobile ? 4.45 : 4.05, mobile ? 2.28 : 2.05, mobile ? 6.75 : 6.45);
     camera.lookAt(0, -0.03, 0);
     ground.position.y = -1.50;
   }
@@ -154,9 +156,9 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
     study.toolGroup.rotation.z = -0.035;
     study.group.rotation.x = -0.02;
     study.group.rotation.y = reducedMotion ? 0.02 : -0.08 + state.progress * 0.08;
-    study.group.scale.setScalar(study.fitScale * (mobile ? 0.77 : 1.02));
-    camera.fov = mobile ? 39 : 31;
-    camera.position.set(mobile ? 5.6 : 4.65, mobile ? 2.75 : 2.05, mobile ? 8.8 : 7.5);
+    study.group.scale.setScalar(study.fitScale * (mobile ? 0.94 : 1.02));
+    camera.fov = mobile ? 35 : 31;
+    camera.position.set(mobile ? 4.85 : 4.65, mobile ? 2.28 : 2.05, mobile ? 7.15 : 7.5);
     camera.lookAt(0, -0.04, 0);
     ground.position.y = -1.5;
   }
@@ -180,9 +182,9 @@ export function createEngineeringCanvas(host, { mode: requestedMode, modelId: su
       });
     });
     study.group.rotation.set(-0.08, -0.20 + (reducedMotion ? 0 : state.progress * 0.16), 0.05);
-    study.group.scale.setScalar(study.fitScale * (mobile ? 0.84 : 1.02));
-    camera.fov = mobile ? 38 : 29;
-    camera.position.set(mobile ? 4.9 : 3.95, mobile ? 2.55 : 1.95, mobile ? 7.6 : 6.35);
+    study.group.scale.setScalar(study.fitScale * (mobile ? 1.04 : 1.02));
+    camera.fov = mobile ? 34 : 29;
+    camera.position.set(mobile ? 4.25 : 3.95, mobile ? 2.18 : 1.95, mobile ? 6.45 : 6.35);
     camera.lookAt(0, 0, 0);
     ground.position.y = -1.47;
   }

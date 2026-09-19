@@ -124,14 +124,14 @@ test("high-DPR and constrained devices lower render cost without forcing a fallb
     hardwareConcurrency: 8,
   });
 
-  assert.equal(iphoneQuality.tier, "mobile-balanced");
-  assert.ok(iphoneQuality.dprCap >= 1.3 && iphoneQuality.dprCap <= 1.45);
+  assert.equal(iphoneQuality.tier, "mobile-high");
+  assert.ok(iphoneQuality.dprCap >= 1.8 && iphoneQuality.dprCap <= 1.95);
   assert.equal(iphoneQuality.lowDetail, false);
   assert.equal(iphoneQuality.shadows, false);
   assert.equal(constrainedQuality.tier, "mobile-low");
   assert.equal(constrainedQuality.lowDetail, true);
   assert.equal(constrainedQuality.shadows, false);
-  assert.ok(desktopQuality.dprCap > iphoneQuality.dprCap);
+  assert.ok(iphoneQuality.dprCap >= desktopQuality.dprCap);
   assert.equal(desktopQuality.shadows, true);
 });
 

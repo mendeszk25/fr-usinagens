@@ -1,0 +1,361 @@
+/* --------------------------------------------------------------------------
+   iPhone / mobile production refinement
+   Keeps the approved desktop art direction intact while giving narrow screens
+   their own composition, sharper WebGL presentation and platform-safe UI.
+   -------------------------------------------------------------------------- */
+
+/* Vector UI arrow: never relies on the U+2197 emoji glyph. */
+.ui-arrow {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  color: currentColor;
+  font-size: 0 !important;
+  line-height: 0;
+  vertical-align: middle;
+}
+.ui-arrow::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  bottom: 4px;
+  width: 13px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+.ui-arrow::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+}
+.ui-arrow--small { width: 13px; height: 13px; margin-left: 3px; }
+.ui-arrow--small::before { width: 10px; left: 1px; bottom: 3px; }
+.ui-arrow--small::after { width: 6px; height: 6px; top: 1px; right: 1px; }
+.button .ui-arrow,
+.editorial-cta .ui-arrow,
+.mobile-quick-cta .ui-arrow { transform: none; }
+.button:hover .ui-arrow,
+.editorial-cta:hover .ui-arrow { transform: translate(2px, -2px); }
+
+.hero-mobile-break { display: none; }
+
+@media (max-width: 759px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* A tighter, consistent safe container for phones. */
+  :root {
+    --mobile-pad: max(20px, calc(env(safe-area-inset-left, 0px) + 18px));
+    --mobile-pad-right: max(20px, calc(env(safe-area-inset-right, 0px) + 18px));
+  }
+  .section,
+  footer {
+    padding-left: var(--mobile-pad);
+    padding-right: var(--mobile-pad-right);
+  }
+
+  /* Hero — intentional line breaks, no hidden overflow workaround. */
+  .hero-mobile-break { display: block; }
+  .hero-copy {
+    left: var(--mobile-pad);
+    right: var(--mobile-pad-right);
+    padding-right: 0;
+  }
+  .hero-copy h1 {
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    font-size: clamp(38px, 10.8vw, 46px);
+    line-height: .92;
+    letter-spacing: -.25px;
+  }
+  .hero-description {
+    max-width: min(88vw, 335px);
+    font-size: clamp(14px, 3.7vw, 15px);
+    line-height: 1.52;
+  }
+  .hero-copy .button {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+  .canvas-host {
+    top: 34%;
+    height: 55%;
+  }
+  .is-static .canvas-host {
+    top: 34%;
+    height: 55%;
+  }
+  .model-caption {
+    max-width: min(68vw, 250px);
+    font-size: 8px;
+    letter-spacing: 1.05px;
+  }
+  .model-caption small { font-size: 8px; }
+
+  /* Compact customer action: useful, but never visually dominant. */
+  .mobile-quick-cta {
+    left: max(14px, calc(env(safe-area-inset-left, 0px) + 12px));
+    right: max(14px, calc(env(safe-area-inset-right, 0px) + 12px));
+    bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 9px));
+    min-height: 54px;
+    height: 54px;
+    padding: 0 17px;
+    gap: 14px;
+    border-color: rgba(255,255,255,.22);
+    background: rgba(211, 218, 222, .94);
+    box-shadow: 0 12px 34px rgba(0,0,0,.30);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 10px;
+    letter-spacing: 1.05px;
+    transition: transform .2s ease, opacity .2s ease, visibility .2s ease;
+  }
+  .mobile-quick-cta .ui-arrow { width: 16px; height: 16px; }
+  .mobile-quick-cta.is-visible.is-scrolling-down {
+    transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px) + 22px));
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mobile-quick-cta.is-visible.is-compact {
+    transform: translateY(0) scale(.985);
+  }
+
+  /* Prevent the last interactive rows from living underneath the fixed CTA. */
+  .quote-section,
+  .repair-redesign,
+  .engineering-precision,
+  footer {
+    scroll-margin-bottom: 86px;
+  }
+  footer { padding-bottom: max(104px, calc(env(safe-area-inset-bottom, 0px) + 82px)); }
+
+  /* Key copy remains readable on a real phone, not only in desktop mockups. */
+  .service-feature__lead,
+  .works-intro > p,
+  .repair-redesign .repair-heading > p:not(.eyebrow):not(.technical-note),
+  .quality-copy > p:not(.eyebrow),
+  .about-copy > p:not(.eyebrow),
+  .contact-kicker > p:last-child,
+  .engineering-components__copy > p:not(.eyebrow):not(.engineering-disclaimer),
+  .engineering-process__copy > p:not(.eyebrow),
+  .engineering-precision__copy > p:not(.eyebrow) {
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  /* Services — keep the editorial identity but let media and text breathe. */
+  .service-feature,
+  .service-feature:first-child { padding-block: 58px; row-gap: 26px; }
+  .service-feature:first-child { padding-top: 62px; }
+  .service-feature__copy h2 { font-size: clamp(40px, 11.1vw, 48px); }
+  .service-feature__media,
+  .service-feature--custom .service-feature__media {
+    margin-left: calc(-1 * var(--mobile-pad));
+    margin-right: calc(-1 * var(--mobile-pad-right));
+    width: auto;
+    aspect-ratio: 1.03 / 1;
+  }
+  .service-feature--lathe .service-feature__media img { object-position: 50% 50%; }
+  .service-feature--custom .service-feature__media img { object-position: 49% 50%; }
+  .editorial-cta { font-size: 9px; }
+
+  /* Real work deserves full-width presence on phone. */
+  .works-editorial-grid { gap: 34px; }
+  .work-editorial,
+  .work-editorial--lead,
+  .work-editorial--top,
+  .work-editorial--mid,
+  .work-editorial--wide,
+  .works-editorial-grid > .work-editorial:nth-child(5),
+  .works-editorial-grid > .work-editorial:nth-child(6) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .work-editorial figure,
+  .work-editorial--lead figure,
+  .work-editorial--top figure,
+  .work-editorial--mid figure,
+  .work-editorial--wide figure {
+    aspect-ratio: 1.12 / 1;
+  }
+  .work-editorial h3 { font-size: clamp(27px, 8vw, 32px); }
+  .work-editorial p,
+  .work-editorial--top p,
+  .work-editorial--mid p,
+  .works-editorial-grid > .work-editorial:nth-child(5) p,
+  .works-editorial-grid > .work-editorial:nth-child(6) p {
+    display: block;
+    font-size: 13px;
+    line-height: 1.58;
+  }
+
+  /* Components 3D — mobile order: copy -> model -> details. */
+  .engineering-components {
+    min-height: auto;
+    padding-top: 62px;
+    padding-bottom: 64px;
+    row-gap: 0;
+  }
+  .engineering-components__copy {
+    display: contents;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .engineering-components__copy > .eyebrow,
+  .engineering-components__copy > h2,
+  .engineering-components__copy > p:not(.engineering-disclaimer),
+  .engineering-components__visual,
+  .part-study-controls,
+  .engineering-disclaimer {
+    grid-column: 1 / -1;
+  }
+  .engineering-components__copy > .eyebrow { order: 1; }
+  .engineering-components__copy > h2 {
+    order: 2;
+    margin-top: 18px;
+    font-size: clamp(42px, 12vw, 52px);
+    line-height: .95;
+  }
+  .engineering-components__copy > p:not(.engineering-disclaimer) {
+    order: 3;
+    margin-top: 22px;
+    max-width: 360px;
+  }
+  .engineering-components__visual {
+    order: 4;
+    min-height: 330px;
+    margin-top: 18px;
+  }
+  .engineering-3d-host { min-height: 320px; }
+  .part-study-controls {
+    order: 5;
+    margin-top: 8px;
+  }
+  .part-study-button {
+    min-height: 58px;
+    grid-template-columns: 46px 1fr;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .engineering-disclaimer {
+    order: 6;
+    margin-top: 20px;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+  .engineering-corner-note { display: none; }
+
+  /* Sticky process — less dead space, stronger object-to-copy ratio. */
+  .engineering-process { min-height: 142svh; }
+  .engineering-process__stage {
+    min-height: 100svh;
+    padding: 58px var(--mobile-pad) max(70px, calc(env(safe-area-inset-bottom, 0px) + 58px));
+    gap: 8px;
+  }
+  .engineering-process__copy h2,
+  .engineering-precision__copy h2 {
+    margin-top: 17px;
+    font-size: clamp(41px, 11.5vw, 50px);
+    line-height: .95;
+  }
+  .engineering-process__copy > p:not(.eyebrow),
+  .engineering-precision__copy > p:not(.eyebrow) {
+    margin-top: 16px;
+    max-width: 100%;
+  }
+  .engineering-process__status { margin-top: 17px; }
+  .engineering-process__visual,
+  .engineering-precision__visual {
+    min-height: 300px;
+    flex: 1 1 300px;
+  }
+  .engineering-3d-host--process,
+  .engineering-3d-host--precision { min-height: 300px; }
+  .process-datum { left: 3%; right: 3%; font-size: 7.5px; }
+
+  /* Precision — keep the technical mood, make the assembly readable. */
+  .engineering-precision { min-height: 146svh; }
+  .engineering-precision__stage {
+    padding: 58px var(--mobile-pad) max(70px, calc(env(safe-area-inset-bottom, 0px) + 58px));
+  }
+  .precision-overlay { inset: 6% 0 3%; }
+  .precision-axis { font-size: 8px; }
+  .precision-axis--diameter { right: 2%; }
+  .precision-axis--length { left: 5%; right: 5%; bottom: 10%; }
+
+  /* Before/after touch surface remains unobstructed and thumb-friendly. */
+  .compare-stage { touch-action: pan-y; }
+  .compare-range { touch-action: pan-y; }
+  .compare-handle { min-width: 44px; min-height: 44px; }
+
+  /* Small technical labels may stay compact, useful copy may not. */
+  .catalog-item__copy > p,
+  .contact-details p,
+  .quality-specs dd,
+  .section-footnote { font-size: 12.5px; }
+}
+
+@media (max-width: 430px) {
+  /* Service catalogue switches to a deliberate one-column card on iPhone. */
+  .catalog-item {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 24px 0 30px;
+  }
+  .catalog-item figure {
+    width: 100%;
+    aspect-ratio: 1.42 / 1;
+  }
+  .catalog-item .technical-kicker { margin-top: 2px; }
+  .catalog-item h3 { font-size: clamp(29px, 8.6vw, 34px); }
+  .catalog-item__copy > p { font-size: 14px; }
+  .catalog-item__copy > a { margin-top: 10px; font-size: 9px; }
+
+  .works-intro h2 { font-size: clamp(42px, 12vw, 50px); }
+  .works-intro > p { font-size: 15px; }
+
+  .engineering-components__visual { min-height: 310px; }
+  .engineering-3d-host { min-height: 300px; }
+  .engineering-process__visual,
+  .engineering-precision__visual { min-height: 286px; flex-basis: 286px; }
+  .engineering-3d-host--process,
+  .engineering-3d-host--precision { min-height: 286px; }
+}
+
+@media (max-width: 379px) {
+  .hero-copy h1 { font-size: clamp(35px, 10.6vw, 40px); }
+  .hero-description { font-size: 13px; }
+  .engineering-components__copy > h2,
+  .engineering-process__copy h2,
+  .engineering-precision__copy h2 { font-size: clamp(38px, 11vw, 44px); }
+  .mobile-quick-cta { height: 52px; min-height: 52px; }
+}
+
+@media (max-width: 759px) and (orientation: landscape) and (max-height: 600px) {
+  .mobile-quick-cta { display: none !important; }
+  .hero-mobile-break { display: none; }
+  .hero-copy h1 { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-quick-cta { transition: none; }
+}
